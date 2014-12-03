@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 #
-# =========================================================
+# ===================================================================
 # File:				getpublicIP.py
 # Dependencies:		mechanize
 # Compatibility:	2.x
 #
 # Creation Date:	7/1/2014
 # Author:			Cashiuus - Cashiuus@gmail.com
-# =========================================================
+#
+# Purpose: 			This will get public IP and store in log file with
+#					date providing a record of what my IP is each day.
+#					
+# ===================================================================
 ## Copyright (C) 2014 Cashiuus@gmail.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -29,11 +33,8 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-#
-#
-# Purpose: This will get public IP and store in log file with date
-#			providing a record of what my IP is each day.
-# =========================================================
+##
+# ===================================================================
 from __future__ import print_function
 import mechanize
 import datetime

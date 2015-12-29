@@ -145,7 +145,7 @@ sed -i 's/^[#P]ort.*/Port 60022/g' $file
 sed -i 's|^HostKey /etc/ssh/ssh_host_ed25519_key|#HostKey /etc/ssh/ssh_host_ed25519_key|' "${file}"
 
 # -- Server Key Bits (Default: 1024)
-sed -i 's/^ServerKeyBits.*/ServerKeyBits 2048/' "${file}"
+sed -i -e 's|\(ServerKeyBits\) 1024|\1 2048|' "${file}"
 
 # -- Login Grace Time (Default: 120)
 sed -i 's/^LoginGraceTime.*/LoginGraceTime 60/' "${file}"
@@ -155,6 +155,7 @@ sed -i 's|#AuthorizedKeysFile.*|AuthorizedKeysFile	%h/.ssh/authorized_keys|' "${
 
 # -- Disable Password Logins if using Pub Key Auth
 #sed -i 's/^PasswordAuthentication.*/PasswordAuthentication yes/' "${file}"
+#sed -i -e 's|\(PasswordAuthentication\) no|\1 yes|' /etc/ssh/sshd_config
 
 # -- X11 Forwarding
 #sed -i 's/X11Forwarding.*/X11Forwarding no/' >> "${file}"

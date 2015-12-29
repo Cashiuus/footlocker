@@ -1,9 +1,19 @@
 #!/usr/bin/env python
-
-# Script that will take a URL and filename and download a file of any size
-# Without a full path, it will save in same directory as script
-# stdout write the download progress in percent to console during download
-
+#
+# ===================================================================
+# File:             urllib-downloader.py
+# Dependencies:     n/a
+# Compatibility:    2.x
+#
+# Creation Date:    12/04/2014
+# Author:           Cashiuus - Cashiuus@gmail.com
+#
+# Purpose:          Script that will take a URL and filename and download
+#                   a file of any size. Without a full path, it will save
+#                   in same directory as script. stdout write the download
+#                   progress in percent to console during download.
+#
+# ===================================================================
 
 import urllib
 

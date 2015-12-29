@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 #
 # ===================================================================
-# File:				getpublicIP.py
-# Dependencies:		mechanize
-# Compatibility:	2.x
+# File:             getpublicIP.py
+# Dependencies:     mechanize
+# Compatibility:    2.x
 #
-# Creation Date:	7/1/2014
-# Author:			Cashiuus - Cashiuus@gmail.com
+# Creation Date:    7/1/2014
+# Author:           Cashiuus - Cashiuus@gmail.com
 #
-# Purpose: 			This will get public IP and store in log file with
-#					date providing a record of what my IP is each day.
-#					
+# Purpose:          This will get public IP and store in log file with
+#                   date providing a record of what my IP is each day.
+#                   
 # ===================================================================
 ## Copyright (C) 2014 Cashiuus@gmail.com
 #
@@ -47,10 +47,10 @@ br.add_headers = [('User-agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKi
 
 # The 'with' context manager closes the file for us when it's done
 with open('ip-log.txt', 'a') as f:
-	f.write('\n')
-	# get IP and save it
-	response = br.open('http://api.ipify.org')
-	response = response.read()
-	output = str(datetime.date.today()) + '\t' + response
-	# Write my IP to file
-	f.write(output)
+    f.write('\n')
+    # get IP and save it
+    response = br.open('http://api.ipify.org')
+    response = response.read()
+    output = str(datetime.date.today()) + '\t' + response
+    # Write my IP to file
+    f.write(output)

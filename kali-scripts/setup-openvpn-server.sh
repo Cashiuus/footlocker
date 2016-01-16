@@ -25,7 +25,7 @@ CLIENT_NAME="client-public"
 VPN_SUBNET="10.9.8.0"
 # -------------------------- #
 
-## Text Colors
+# ------[ Text Colors ]----------- #
 RED="\033[01;31m"      # Issues/Errors
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings/Information
@@ -33,13 +33,12 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
-# ====================================================================================== #
-# ------------------------------------[ Begin Script ]---------------------------------- #
+# ==================================[ Begin Script ]================================= #
 sudo apt-get install openvpn openssl -y
 service openvpn stop
 openvpn --version
 
-if [[ ! -d "$HOME/easy-rsa" ]]; then
+if [[ ! -d "${HOME}/easy-rsa" ]]; then
 	git clone git://github.com/OpenVPN/easy-rsa
 fi
 

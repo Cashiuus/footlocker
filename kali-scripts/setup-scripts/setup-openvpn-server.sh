@@ -1,6 +1,6 @@
 #!/bin/bash
 #-Metadata----------------------------------------------------#
-# Filename: setup-openvpn-server.sh       (Update: 10-05-2015 #
+# Filename: setup-openvpn-server.sh     (Update: 17-Jan-2016) #
 #-Author------------------------------------------------------#
 #  cashiuus - cashiuus@gmail.com                              #
 #-Licence-----------------------------------------------------#
@@ -11,7 +11,7 @@
 #        Uses the newer easy-rsa3 version to generate         #
 #        the certificate package.                             #
 #        Lastly, we merge all client certs into a             #
-#        singular file.                                       #
+#        singular embedded client config file.                #
 #                                                             #
 #-------------------------------------------------------------#
 # OpenVPN Hardening Cheat Sheet: http://darizotas.blogspot.com/2014/04/openvpn-hardening-cheat-sheet.html
@@ -19,7 +19,7 @@
 
 # ----- EDIT VARIABLES ----- #
 VPN_PREP_DIR="${HOME}/vpn-setup"
-VPN_SERVER='cashiuus-predator.ddns.net'
+VPN_SERVER=''
 VPN_PORT='443'
 CLIENT_NAME="client-public"
 VPN_SUBNET="10.9.8.0"
@@ -198,12 +198,17 @@ server 10.9.8.0 255.255.255.0
 
 # Maintain a record of IP associations. If a client goes down
 # it will reconnect and be given the same IP address
-ifconfig-pool-persist ipp.txt
+# *NOTE: This setting conflicts with 'duplicate-cn' and is disabled during testing
+#ifconfig-pool-persist ipp.txt
 
 # Redirect clients' default gateway, bypassing dhcp server issues
 push "redirect-gateway def1 bypass-dhcp"
 push "dhcp-option DNS 8.8.8.8"
 
+### Client Settings
+client-to-client
+duplicate-cn
+max-clients 3
 # Push Routes to Client
 
 # Client-specific configs or certificates
@@ -219,11 +224,13 @@ user nobody
 group nogroup
 persist-key
 persist-tun
+
 # Output a short status file showing current connections, each minute
 status openvpn-status.log
 log-append /var/log/openvpn.log
-verb 4
+verb 6
 mute 20
+
 # *UNTESTED* --TLS CIPHERS-- (Avoid DES)
 # Below are TLS 1.2 & require OpenVPN 2.3.3+
 #tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384

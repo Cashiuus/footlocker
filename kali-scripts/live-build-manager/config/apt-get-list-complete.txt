@@ -1,0 +1,161 @@
+# Complete Pentest Environment List
+
+### --- Core Dependencies First --- ###
+bash-completion
+build-essential
+chrpath
+git-core
+grc
+lib32ncurses5
+lib32z1
+libcurl3
+libcurl4-openssl-dev
+libfontconfig1-dev
+libnet-dbus-glib-perl
+libnss3-tools
+libpcap0.8-dev
+libpq-dev
+libreadline6
+libreadline6-dev
+libssl-dev
+libxft-dev
+libxml2-dev 
+libxslt-dev
+libyaml-dev
+make
+ruby
+ruby-dev
+zlib1g
+zlib1g-dev
+
+### --- Metasploit Development dependencies --- ###
+zlib1g
+zlib1g-dev
+libxml2
+libxml2-dev
+libxslt-dev
+locate
+libreadline6-dev
+libcurl4-openssl-dev 
+git-core
+libssl-dev
+libyaml-dev
+openssl
+autoconf
+libtool
+ncurses-dev
+bison
+curl
+wget
+postgresql
+postgresql-contrib
+libpq-dev
+libapr1
+libaprutil1
+libsvn1
+libpcap-dev
+libsqlite3-dev
+
+### --- Programming Applications --- ###
+geany
+golang
+nodejs
+python-impacket
+python-pip
+python-setuptools
+python3-all
+virtualenv
+virtualenvwrapper
+
+
+### --- System Applications --- ###
+apache2
+apt-file
+apt-show-versions
+chkconfig
+conky-all
+conky-manager
+curl
+elasticsearch
+#fail2ban - Not sure if I want this all the time yet
+filezilla
+#firestarter - app not available in latest Debian yet
+freerdp-x11
+gcc
+gdb
+gedit
+gimp
+git
+htop
+iceweasel
+lynx
+network-manager-openconnect-gnome
+openconnect
+openssh-server
+openvpn
+screen
+screenruler
+secpanel
+shutter
+sqlite3
+terminator
+tmux
+tree
+unzip
+
+vim
+vncviewer
+wdiff
+wdiff-doc
+wicd-gtk
+xchat
+xrdp
+zip
+zsh
+
+### --- Security Applications --- ###
+arp-scan
+beef-xss
+clusterd        # Clustered Attack Toolkit (JBoss, CF, WebLogic, Tomcat, etc.)
+dnsrecon
+fierce
+fimap
+httprint
+lbd
+nbtscan
+netdiscover
+#nmapsi4    (App still too buggy for use)
+onetwopunch
+smbmap
+sslscan
+sslyze
+theharvester
+urlcrazy
+
+### Wireless
+bully
+fruity-wifi
+mana-toolkit
+pixiewps
+reaver
+wifite
+
+### Exfil/Tunneling
+dns2tcp
+http-tunnel
+icmptx
+iodine
+ptunnel
+sshuttle
+stunnel
+
+### Shell/Backdoors
+htshells
+shellter
+webhandler
+webshells
+
+
+### --- Git Clone Repo Dependencies --- ###
+# git-Ropper depends:
+python-capstone

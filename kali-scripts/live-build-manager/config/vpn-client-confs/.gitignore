@@ -1,0 +1,4 @@
+# Ignore everything in this directory, as it will house all generated build data
+*
+# Except for this .gitignore file itself
+!.gitignore

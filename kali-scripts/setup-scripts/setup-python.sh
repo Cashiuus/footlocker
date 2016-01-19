@@ -1,6 +1,6 @@
 #!/bin/bash
 #-Metadata----------------------------------------------------#
-# Filename: setup-python.sh               (Update: 09-10-2015 #
+# Filename: setup-python.sh             (Update: 17-Jan-2016) #
 #-Author(s)---------------------------------------------------#
 #  cashiuus - cashiuus@gmail.com                              #
 #-Licence-----------------------------------------------------#
@@ -12,7 +12,7 @@
 #-------------------------------------------------------------#
 
 INSTALL_PY3="true"
-DEFAULT_VERSION="2"		# Set to 3 for py3; Determines which is activated
+DEFAULT_VERSION="2"	# Set to 3 for py3; Determines which is activated at the end
 py2version="2.7"
 py3version="3.4"
 
@@ -32,18 +32,31 @@ else
 	SHELL_FILE=~/.bashrc
 fi
 
-# Pre-requisites for compiling Python
+# Pre-requisites
 echo -e "\n ${GREEN}-----------${RESET}[ Installing Python Dependencies ]${GREEN}-----------${RESET}"
-apt-get install -y -qq build-essential python python3 python-pip virtualenvwrapper
+apt-get install -y -qq build-essential python python-pip virtualenvwrapper
 
-# REMOVED: Pip no longer supports this functionality and caches by default now...
-# Create a PIP configuration file that specifies a cache directory
-#echo -e "\n ${GREEN}-----------${RESET}[ Creating Pip Config - Cache Settings ]${GREEN}-----------${RESET}"
-#mkdir -p ~/.pip/cache
-#cat <<EOF > ~/.pip/pip.conf
-#[global]
-#download_cache = ~/.pip/cache
-#EOF
+# Install base pip files
+file="/tmp/requirements.txt"
+cat <<EOF > "${file}"
+argparse
+beautifulsoup4
+colorama
+django
+dnspython
+lxml
+mechanize
+netaddr
+pefile
+pep8
+Pillow
+python-Levenshtein
+python-libnmap
+requests
+EOF
+
+pip install -r /tmp/requirements.txt
+
 
 # Install Python 3.4.x
 if [ $INSTALL_PY3 == "true" ]; then

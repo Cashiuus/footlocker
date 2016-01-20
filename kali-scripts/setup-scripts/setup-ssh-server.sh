@@ -1,6 +1,6 @@
 #!/bin/bash
 #-Metadata----------------------------------------------------#
-# Filename: setup-ssh-server.sh          (Update: 10-10-2015) #
+# Filename: setup-ssh-server.sh         (Update: 19-Jan-2016) #
 #-Author------------------------------------------------------#
 #  cashiuus - cashiuus@gmail.com                              #
 #-Licence-----------------------------------------------------#
@@ -14,9 +14,32 @@
 #-------------------------------------------------------------#
 # Thanks to: https://www.lisenet.com/2013/openssh-server-installation-and-configuration-on-debian/
 #
-SSH_SERVER_IP=192.168.1.50
-SSH_SERVER_PORT=60022
+#-------------------------------------------------------------#
+## ========================================================================== ##
+__version__="0.1"
+__author__='Cashiuus'
+SCRIPT_PATH=$(readlink -f $0)
+SCRIPT_DIR=$(dirname ${SCRIPT_PATH})
+## ===============[ Text Colors ]================ ##
+GREEN="\033[01;32m"    # Success
+YELLOW="\033[01;33m"   # Warnings/Information
+RED="\033[01;31m"      # Issues/Errors
+BLUE="\033[01;34m"     # Heading
+BOLD="\033[01;01m"     # Highlight
+RESET="\033[00m"       # Normal
+## ========================================================================== ##
 
+
+if [[ -s "${SCRIPT_DIR}/config/settings.local" ]]; then
+    source "${SCRIPT_DIR}/config/settings.local"
+else
+    echo -e "${RED} [-] ERROR: ${RESET} settings.local file is missing."
+    echo -e
+    read -p "${GREEN} [+] Enter SSH Server IP: " -e SSH_SERVER_IP
+    echo -e
+    echo -e "${GREEN} [+] Enter SSH Server Port: "
+    read SSH_SERVER_PORT
+fi
 
 apt-get -qq update
 apt-get -y -qq install openssh-server openssl
@@ -38,7 +61,6 @@ openssh_version="${tmp:0:3}"
 
 function version () {
     echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }';
-
 }
 
 function version_check () {
@@ -52,6 +74,7 @@ function version_check () {
 }
 
 # Call version check to test if installed version is at least 6.5 or newer (-o)
+# TODO: Ask user if they also want to implement a password
 version_check $ver 6.5
 if [ $? == 0 ]; then
     echo -e "[*] Newer OpenSSH Version detected, proceeding with new key format"
@@ -89,32 +112,12 @@ cat "${HOME}/.ssh/id_rsa.pub" >> "${file}"
 # NOTE: authorized_keys file should be set to 644
 chmod 644 "${file}"
 
-# TODO: Create a use specifically for ssh so we aren't connecting as root, can always su
-
-
 # Configure the MOTD banner message remote users see, 2 versions below
 # Create ASCII Art: http://patorjk.com/software/taag/
-cat << EOF > /etc/motd
-##########################++++++++++##########################
-#        (   (      (                      )  (              #
-#        )\ ))\ )   )\ )   (      *   ) ( /(  )\ )           #
-#       (()/(()/(( (()/(   )\   ` )  /( )\())(()/(           #
-#        /(_))(_))\ /(_)|(((_)(  ( )(_)|(_)\  /(_))          #
-#       (_))(_))((_|_))_ )\ _ )\(_(_())  ((_)(_))            #
-#       | _ \ _ \ __|   \(_)_\(_)_   _| / _ \| _ \           #
-#       |  _/   / _|| |) |/ _ \   | |  | (_) |   /           #
-#       |_| |_|_\___|___//_/ \_\  |_|   \___/|_|_\           #
-#         Welcome to Predator Secure Shell Server            #
-#             All Connections Are Monitored                  #
-#         Do Not Probe for Vulns -- Play nice ;)             #
-#                                                            #
-#     DISCONNECT NOW IF YOU ARE NOT AN AUTHORIZED USER       #
-##########################++++++++++##########################
-EOF
-
-
-
-cat << EOF > /etc/motd2
+if [[ -f "${SCRIPT_DIR}/config/motd" ]]; then
+    cp "${SCRIPT_DIR}/config/motd" /etc/motd
+else
+    cat << EOF > /etc/motd
 ###########################++++++++++###########################
 #             Welcome to the Secure Shell Server               #
 #               All Connections are Monitored                  #
@@ -123,9 +126,19 @@ cat << EOF > /etc/motd2
 #      DISCONNECT NOW IF YOU ARE NOT AN AUTHORIZED USER        #
 ###########################++++++++++###########################
 EOF
+fi
 
-# ---------------------- [ SSHD CONFIG TWEAKS ] ---------------------- #
+# TODO: Create a user specifically for ssh so we aren't connecting as root
+#   This would also require SSH certificates setup to be performed from this user 
+#   or copied to their $HOME
+#apt-get -y install sudo
+#useradd -m sshuser
+#paswd sshuser
+#usermod -a -G sudo sshuser
 
+
+
+# ===========================[ SSHD CONFIG TWEAKS ] =============================== #
 file=/etc/ssh/sshd_config
 # Find "Banner" in file and change to motd if not already
 # Orig: #Banner /etc/issue.net
@@ -172,11 +185,10 @@ grep -q '^Ciphers ' "${file}" 2>/dev/null || echo "\nCiphers aes256-ctr,aes192-c
 #grep -q '^DenyUsers ' "${file}" 2>/dev/null || echo "\nDenyUsers root" >> "${file}"
 #grep -q '^DenyGroups ' "${file}" 2>/dev/null || echo "\nDenyGroups root" >> "${file}"
 #grep -q '^PrintLastLog ' "${file}" 2>/dev/null || echo "\nPrintLastLog yes" >> "${file}"
+## ========================================================================== ##
 
-# ------------------------------------------------------------------- #
 
-
-# IPTABLES
+# ============[ IPTABLES ]============== #
 #iptables -A INPUT -p tcp --dport $SSH_SERVER_PORT -j ACCEPT
 
 # Restart SSH Server

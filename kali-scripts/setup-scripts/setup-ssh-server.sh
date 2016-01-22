@@ -200,3 +200,50 @@ update-rc.d -f ssh enable
 
 # Check for any Invalid User Login Attempts
 #cat /var/log/auth.log | grep "Invalid user" | cut -d " " -f 1-3,6-11 | uniq | sort
+
+restrict_login_geoip() {
+    apt-get -y install geoip-bin geoip-database
+    # Test it out
+    geoiplookup 8.8.8.8
+    echo -e "${GREEN} [*] Testing Geoip${RESET}; Did it work? Press any key to continue"
+    read
+    
+    # Create script that will check IPs and return True or False
+    file="/usr/local/bin/sshfilter.sh"
+    cat << EOF > "${file}"
+#!/bin/bash
+# Credit to: http://www.axllent.org/docs/view/ssh-geoip/
+# UPPERCASE space-separated country codes to ACCEPT
+ALLOW_COUNTRIES="US"
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: `basename $0` <ip>" 1>&2
+    # Return 0 (True) in case of config issue
+    exit 0
+fi
+
+COUNTRY=`/usr/bin/geoiplookup $1 | awk -F ": " '{ print $2 }' | awk -F "," '{ print $1 }' | head -n 1`
+
+# Not Found can occur if the IP address is RFC1918
+[[ $COUNTRY = "IP Address not found" || $ALLOW_COUNTRIES =~ $COUNTRY ]] && RESPONSE="ALLOW" || RESPONSE="DENY"
+
+if [[ $RESPONSE = "ALLOW" ]]; then
+    exit 0
+else
+    logger "$RESPONSE sshd connection from $1 ($COUNTRY)"
+    exit 1
+fi
+EOF
+    chmod +x "${file}"
+    
+    # Set the default to deny all
+    echo "sshd: ALL" >> /etc/hosts.deny
+    # Set the filter script to determine which hosts are allowed
+    echo "sshd: ALL: aclexec /usr/local/bin/sshfilter.sh %a" >> /etc/hosts.allow
+    
+    # Test it out
+    /usr/local/bin/sshfilter.sh 8.8.8.8
+    sleep 2
+    tail /var/log/messages
+    
+}

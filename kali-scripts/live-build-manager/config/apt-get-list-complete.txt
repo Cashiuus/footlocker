@@ -77,8 +77,10 @@ conky-all
 conky-manager
 curl
 elasticsearch
+explorer
 #fail2ban - Not sure if I want this all the time yet
 filezilla
+finger
 #firestarter - app not available in latest Debian yet
 freerdp-x11
 gcc
@@ -93,6 +95,7 @@ network-manager-openconnect-gnome
 openconnect
 openssh-server
 openvpn
+rsh-client
 screen
 screenruler
 secpanel
@@ -101,9 +104,10 @@ sqlite3
 terminator
 tmux
 tree
+tshark
 unzip
-
 vim
+vlan
 vncviewer
 wdiff
 wdiff-doc
@@ -121,16 +125,21 @@ dnsrecon
 fierce
 fimap
 httprint
+ike-scan
 lbd
 nbtscan
 netdiscover
 #nmapsi4    (App still too buggy for use)
 onetwopunch
+scanner
+smb4k
 smbmap
 sslscan
 sslyze
 theharvester
+tnscmd10g
 urlcrazy
+yersinia
 
 ### Wireless
 bully

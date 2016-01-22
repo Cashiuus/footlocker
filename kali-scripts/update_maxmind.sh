@@ -9,6 +9,10 @@
 # caveat: if you do set this to update in an automated fashion, please uncomment the following line:
 # cd [combine_folder]/data/
 
+cd /usr/share/GeoIP
+apt-get -qq update
+apt-get -y install geoip-bin geoip-database geoip-database-extra
+
 wget -q http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz && gunzip -f GeoIP.dat.gz
 
 wget -q http://download.maxmind.com/download/geoip/database/asnum/GeoIPASNum2.zip && unzip -qqo GeoIPASNum2.zip && rm GeoIPASNum2.zip

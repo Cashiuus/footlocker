@@ -35,6 +35,7 @@ https://github.com/mfontanini/dot11decrypt
 https://github.com/dradis/dradisframework
 # Drupal CMS scanner - Also does Silverstripe & Wordpress
 https://github.com/droope/droopescan
+https://github.com/commonexploits/dtpscan
 https://github.com/PowerShellEmpire/Empire
 https://github.com/byt3bl33d3r/gcat
 https://github.com/nullmode/gnmap-parser
@@ -73,6 +74,7 @@ https://github.com/sashs/Ropper
 https://github.com/danielmiessler/SecLists
 # Shellcode Disassembler
 https://github.com/hasherezade/shellconv
+https://github.com/brav0hax/smbexec
 https://github.com/T-S-A/smbspider
 https://github.com/mandatoryprogrammer/sonar.js
 https://github.com/sqlmapproject/sqlmap
@@ -82,6 +84,7 @@ https://github.com/nullsecuritynet/tools
 https://github.com/Vozzie/uacscript
 https://github.com/Veil-Framework/Veil
 https://github.com/toolswatch/vFeed
+https://github.com/commonexploits/vlan-hopping
 https://github.com/sandrogauci/wafw00f
 https://github.com/anestisb/WeBaCoo
 https://github.com/derv82/werdy
@@ -92,7 +95,7 @@ https://github.com/jekyc/wig
 https://github.com/dxa4481/WPA2-HalfHandshake-Crack
 # WPS Auto Breaker Tool
 https://github.com/SilentGhostX/HT-WPS-Breaker
-https://github.com/wpscanteam/wpscan.git
+https://github.com/wpscanteam/wpscan
 
 # Miscellaneous
 https://github.com/vrana/adminer

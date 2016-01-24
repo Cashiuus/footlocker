@@ -9,7 +9,7 @@
 #
 # ==============================================================================
 __version__="0.1"
-
+__author__="Cashiuus"
 ## Text Colors
 RED="\033[01;31m"      # Issues/Errors
 GREEN="\033[01;32m"    # Success
@@ -18,6 +18,9 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
+
+# Disable idle timeout to screensaver
+gsettings set org.gnome.desktop.session idle-delay 0
 
 # ----------------- [ Disable Package Updater Notifications ] ------------------ #
 if [[ $(which gnome-shell) ]]; then
@@ -32,15 +35,14 @@ fi
 
 # ------------------- [ Extensions ] ----------------------- #
 mkdir -p "/usr/share/gnome-shell/extensions/"
+# ===[ Extension: TaskBar ]==== #
 git clone -q https://github.com/zpydr/gnome-shell-extension-taskbar.git /usr/share/gnome-shell/extensions/TaskBar@zpydr/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
 #--- Gnome Extensions (Enable)
 for EXTENSION in "alternate-tab@gnome-shell-extensions.gcampax.github.com" "TaskBar@zpydr" "Bottom_Panel@rmy.pobox.com" "Panel_Favorites@rmy.pobox.com" "Move_Clock@rmy.pobox.com"; do
   GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed 's_^.\(.*\).$_\1_')
   echo "${GNOME_EXTENSIONS}" | grep -q "${EXTENSION}" || gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}, '${EXTENSION}']"
 done
-# Enabled Extensions List
-#"['apps-menu@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'ProxySwitcher@flannaghan.com', 'EasyScreenCast@iacopodeenosee.gmail.com', 'refresh-wifi@kgshank.net', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'alternate-tab@gnome-shell-extensions.gcampax.github.com', 'Bottom_Panel@rmy.pobox.com', 'TaskBar@zpydr', 'Panel_Favorites@rmy.pobox.com', 'Move_Clock@rmy.pobox.com']"
-#--- Gnome Extensions (Disable)
+
 for EXTENSION in "dash-to-dock@micxgx.gmail.com" "workspace-indicator@gnome-shell-extensions.gcampax.github.com"; do
   GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed "s_^.\(.*\).\$_\1_; s_, '${EXTENSION}'__")
   gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}]"

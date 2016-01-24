@@ -39,8 +39,7 @@ EOF
 fi
 
 # =============================[ CONFIGURE GEANY ]================================ #
-timeout 5 geany >/dev/null 2>&1
-sleep 6
+#timeout 5 geany >/dev/null 2>&1
 file=/root/.config/geany/geany.conf
 # Geany now only writes its config after a 'clean' quit.
 if [ -e "${file}" ]; then

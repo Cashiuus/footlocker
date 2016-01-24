@@ -1,60 +1,41 @@
 #!/bin/bash
-# ==============================================================================
+## =============================================================================
 # File:     
 #
 # Author:   Cashiuus
-# Created:  01//2016
+# Created:  01/25/2016
 # Revised:  
 #
-# Purpose:  Find an IP address without knowing anything about the env
+# Purpose:  
 #
-# ==============================================================================
+## =============================================================================
 __version__="0.1"
-__author__='Cashiuus'
-## ===========[ Text Colors ]============== ##
+__author__="Cashiuus"
+## ========[ TEXT COLORS ]================= ##
 GREEN="\033[01;32m"    # Success
-BLUE="\033[01;34m"     # Heading
 YELLOW="\033[01;33m"   # Warnings/Information
 RED="\033[01;31m"      # Issues/Errors
+BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
+## =========[ CONSTANTS ]================ ##
 
 
-# =============================[      ]===================================
-
-
-
-
-# ifconfig - This will grab "eth0"
-ifconfig -a | grep -o "eth.*" |cut -d " " -f1
-
-
-# ip - 
-ip -4 -oneline addr
-
-
-# arp - Get the ARP table, showing numeric addresses instead of resolving
-arp -vn
-
-
-# route
-
-
-# netstat
-
-# Display a list of all network interfaces
-netstat --interfaces
-
-# tcpdump
+# =============================[      ]================================ #
 
 
 
 
 
-###
 
-# Assign an IP address to the ethernet device eth0
-ip addr add 192.168.44.91 dev eth0
+
+
+
+
+
+
+
+
 
 
 
@@ -75,4 +56,3 @@ ip addr add 192.168.44.91 dev eth0
 #   [[ $? -eq 0 ]]    Previous command was successful
 #   [[ ! $? -eq 0 ]]    Previous command NOT successful
 #
-

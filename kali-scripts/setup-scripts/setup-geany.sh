@@ -1,29 +1,26 @@
 #!/bin/bash
-# ==============================================================================
+## =============================================================================
 # File:     setup-geany.sh
+#
 # Author:   cashiuus@gmail.com
-# Created:  10/10/2015
-# Revised:  
+# Created:  10/10/2015          (Revised:  01/24/2016)
 #
 # Purpose:  Configure Geany settings on fresh Kali 2.x install
 #
-# ==============================================================================
+## =============================================================================
 __version__="0.1"
-
-## Text Colors
-RED="\033[01;31m"      # Issues/Errors
+__author__="Cashiuus"
+## ========[ TEXT COLORS ]================= ##
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings/Information
+RED="\033[01;31m"      # Issues/Errors
 BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
+## =========[ CONSTANTS ]================ ##
+BACKUPS_DIR="${HOME}/Backups/geany"
 
-
-# ------------ DECLARE CONSTANTS -------------
-BACKUPS_DIR="$HOME/Backups/geany"
-
-
-
+# =============================[ BEGIN ]================================ #
 apt-get install -y -qq geany python-pip
 pip install flake8 pep8-naming
 
@@ -38,19 +35,17 @@ pack-index=3
 pack-type='start'
 toplevel-id='top-panel'
 EOF
-
     dconf write /org/gnome/gnome-panel/layout/object-id-list "$(dconf read /org/gnome/gnome-panel/layout/object-id-list | sed "s/]/, 'geany']/")"
 fi
 
-
-#--- Configure geany
+# =============================[ CONFIGURE GEANY ]================================ #
 timeout 5 geany >/dev/null 2>&1
 
 file=/root/.config/geany/geany.conf; [ -e "${file}" ] && cp -n $file{,.bkup}
-touch ${file}  # *** this will not work as geany now only writes its config after a 'clean' quit.
+#touch ${file}  # *** this will not work as geany now only writes its config after a 'clean' quit.
 sed -i 's/^.*editor_font=.*/editor_font=Monospace\ 9/' "${file}"
 sed -i 's/^.*sidebar_pos=.*/sidebar_pos=1/' "${file}"
-#sed -i 's/^.*check_detect_indent=.*/check_detect_indent=true/' "${file}"       # I'd rather make all files use spaces
+sed -i 's/^.*check_detect_indent=.*/check_detect_indent=true/' "${file}"
 sed -i 's/^.*detect_indent_width=.*/detect_indent_width=true/' "${file}"
 sed -i 's/^.*pref_editor_tab_width=.*/pref_editor_tab_width=4/' "${file}"       # Python encourages width: 4
 sed -i 's/^.*indent_type.*/indent_type=2/' "${file}"
@@ -81,10 +76,9 @@ grep -q '^custom_commands=sort;' "${file}" || sed -i 's/\[geany\]/[geany]\ncusto
 #   browser_cmd=sensible-browser
 #   grep_cmd=grep
 
-
 # Build Commands
 # File-dependent build commands go in their own file for each filetype
-file="$HOME/.config/geany/filedefs"
+file="${HOME}/.config/geany/filedefs"
 [[ -d "${file}" ]] && mkdir -p "${file}"
 cat << EOF > "${file}/filetypes.python"
 [build-menu]
@@ -98,7 +92,7 @@ FT_00_WD=
 EOF
 
 # Add custom config for flake8 checking, exclude noisy Error Codes
-file="$HOME/.config/flake8"
+file="${HOME}/.config/flake8"
 cat << EOF > "${file}"
 # E***/W*** Codes are PEP8, F*** codes are PyFlakes, 
 # N8** codes are pep8-naming, C9** are McCabe complexity plugin
@@ -112,13 +106,13 @@ exclude = tests/*,.git,__pycache
 EOF
 
 # Add other files to filetype coloring config
-file="$HOME/.config/geany/filetype_extensions.conf"
+file="${HOME}/.config/geany/filetype_extensions.conf"
 [[ ! -s "${file}" ]] && cp "/usr/share/geany/filetype_extensions.conf" "${file}"
 sed -i 's/^C=\*\.c;\*\.h.*;/C=*.c;*.h;*.nasl;/' "${file}"
 sed -i 's/^Sh=\*\.sh;configure;.*/Sh=*.sh;configure;configure.in;configure.in.in;configure.ac;*.ksh;*.mksh;*.zsh;*.ash;*.bash;*.m4;PKGBUILD;*profile;*.bash*;/' "${file}"
 
-
-# Geany -> Tools -> Plugin Manger -> Save Actions -> HTML Characters: Enabled. Split Windows: Enabled. Save Actions: Enabled. -> Preferences -> Backup Copy -> Enable -> Directory to save backup files in: /root/backups/geany/. Directory levels to include in the backup destination: 5 -> Apply -> Ok -> Ok
+# Geany -> Tools -> Plugin Manger -> Save Actions -> HTML Characters: Enabled. Split Windows: Enabled. Save Actions: Enabled. -> Preferences -> Backup Copy -> Enable -> Directory to save backup files in: /root/Backups/geany/. 
+#Directory levels to include in the backup destination: 5 -> Apply -> Ok -> Ok
 sed -i 's#^.*active_plugins.*#active_plugins=/usr/lib/geany/htmlchars.so;/usr/lib/geany/saveactions.so;/usr/lib/geany/splitwindow.so;#' "${file}"
 mkdir -p "${BACKUPS_DIR}"
 mkdir -p /root/.config/geany/plugins/saveactions/
@@ -140,7 +134,5 @@ default_ft=None
 [backupcopy]
 dir_levels=5
 time_fmt=%Y-%m-%d-%H-%M-%S
-backup_dir=$BACKUPS_DIR
+backup_dir=${BACKUPS_DIR}
 EOF
-
-

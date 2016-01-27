@@ -109,7 +109,7 @@ Icon=xfce4-appfinder
 StartupNotify=true
 Terminal=false
 Type=Application
-Categories=X-XFCE;Utility;
+Categories=X-XFCE;Utility;c
 Comment=Find and launch applications installed on your system
 X-XFCE-Source=file:///usr/share/applications/xfce4-appfinder.desktop
 EOF
@@ -338,7 +338,7 @@ function enable_xfce {
 # Disable idle timeout to screensaver
 gsettings set org.gnome.desktop.session idle-delay 0
 
-apt-get -y -qq install curl xfce4 xfce-goodies xfce4-places-plugin
+apt-get -y -qq install curl terminator xfce4 xfce-goodies xfce4-places-plugin
 
 # Create directory structure
 mkdir -p ~/.config/xfce4/{desktop,menu,panel,xfconf,xfwm4}/

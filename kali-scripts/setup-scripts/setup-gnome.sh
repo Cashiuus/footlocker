@@ -105,3 +105,10 @@ gsettings set org.gnome.shell favorite-apps "['iceweasel.desktop', 'gnome-termin
 # Titlebar Font - Originally it is 'Cantarell Bold 11'
 gsettings set org.gnome.desktop.wm.preferences titlebar-font "'Droid Bold 10'"
 gsettings set org.gnome.desktop.wm.preferences titlebar-uses-system-font false
+
+
+#--- Disable tracker service (But enables it in XFCE)
+gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
+gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
+
+

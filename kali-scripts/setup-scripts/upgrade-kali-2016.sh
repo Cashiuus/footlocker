@@ -35,14 +35,14 @@ FINISH_TIME=$(date +%s)
 echo -e "${GREEN} [*] Upgrade Completed Successfully ${YELLOW}( Time: $(( $(( FINISH_TIME - START_TIME )) / 60 )) minutes )\n${RESET}"
 
 ### Install Open VM Tools
-read -p "Install Open VM Tools? [Y,n]: " -e resppnse
+read -n 1 -t 3 -p "Install Open VM Tools? [Y,n]: " -e response
 case $response in
-    [Yy]* ) reboot;;
-    [Nn]* ) exit 0;;
-    * ) exit 0;;
+    [Yy]* ) install_vm_tools;;
+    [Nn]* ) break;;
+    * ) break;;
 esac
 
-read -p "Okay to Reboot System now? [Y,n]: " -e response
+read -n 1 -t 10 -p "Okay to Reboot System now? [Y,n]: " -e response
 case $response in
     [Yy]* ) reboot;;
     [Nn]* ) exit 0;;

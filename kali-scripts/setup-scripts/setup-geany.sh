@@ -40,7 +40,9 @@ fi
 
 # =============================[ CONFIGURE GEANY ]================================ #
 #timeout 5 geany >/dev/null 2>&1
-file=/root/.config/geany/geany.conf
+filedir="${HOME}/.config/geany"
+[[ -d "${filedir}" ]] && mkdir -p "${filedir}"
+file="${HOME}/.config/geany/geany.conf"
 # Geany now only writes its config after a 'clean' quit.
 if [ -e "${file}" ]; then
     cp -n $file{,.bkup}
@@ -71,7 +73,8 @@ if [ -e "${file}" ]; then
     grep -q '^custom_commands=sort;' "${file}" || sed -i 's/\[geany\]/[geany]\ncustom_commands=sort;/' "${file}"
 else
     file="/usr/share/geany/geany.conf"
-    touch "${file}"
+    cd /usr/share/geany
+    touch "${file}" || echo -e "[-] Failed to create new file" && echo "" > "${file}"
     cat << EOF > "${file}"
 [geany]
 tab_pos_sidebar=2
@@ -136,9 +139,10 @@ fi
 
 # Build Commands
 # File-dependent build commands go in their own file for each filetype
-file="${HOME}/.config/geany/filedefs"
-[[ -d "${file}" ]] && mkdir -p "${file}"
-cat << EOF > "${file}/filetypes.python"
+filedir="${HOME}/.config/geany/filedefs"
+[[ -d "${filedir}" ]] && mkdir -p "${filedir}"
+file="${filedir}/filetypes.python"
+cat << EOF > "${file}"
 [build-menu]
 FT_01_LB=Check
 FT_01_CM=flake8 --show-source "%f"
@@ -165,17 +169,21 @@ EOF
 
 # Add other files to filetype coloring config
 file="${HOME}/.config/geany/filetype_extensions.conf"
-[[ ! -s "${file}" ]] && cp "/usr/share/geany/filetype_extensions.conf" "${file}"
+[[ ! -f "${file}" ]] && cp "/usr/share/geany/filetype_extensions.conf" "${file}"
 sed -i 's/^C=\*\.c;\*\.h.*;/C=*.c;*.h;*.nasl;/' "${file}"
 sed -i 's/^Sh=\*\.sh;configure;.*/Sh=*.sh;configure;configure.in;configure.in.in;configure.ac;*.ksh;*.mksh;*.zsh;*.ash;*.bash;*.m4;PKGBUILD;*profile;*.bash*;/' "${file}"
 
 # Geany -> Tools -> Plugin Manger -> Save Actions -> HTML Characters: Enabled. Split Windows: Enabled. Save Actions: Enabled. -> Preferences -> Backup Copy -> Enable -> Directory to save backup files in: /root/Backups/geany/. 
 #Directory levels to include in the backup destination: 5 -> Apply -> Ok -> Ok
 sed -i 's#^.*active_plugins.*#active_plugins=/usr/lib/geany/htmlchars.so;/usr/lib/geany/saveactions.so;/usr/lib/geany/splitwindow.so;#' "${file}"
-mkdir -p "${BACKUPS_DIR}"
-mkdir -p /root/.config/geany/plugins/saveactions/
-file=/root/.config/geany/plugins/saveactions/saveactions.conf; [ -e "${file}" ] && cp -n $file{,.bkup}
-cat <<EOF > "${file}"
+
+
+function enable_geany_backups {
+    mkdir -p "${BACKUPS_DIR}"
+    mkdir -p "${HOME}/.config/geany/plugins/saveactions"
+    file=/root/.config/geany/plugins/saveactions/saveactions.conf
+    [[ -e "${file}" ]] && cp -n $file{,.bkup}
+    cat <<EOF > "${file}"
 [saveactions]
 enable_autosave=false
 enable_instantsave=false
@@ -194,3 +202,7 @@ dir_levels=5
 time_fmt=%Y-%m-%d-%H-%M-%S
 backup_dir=${BACKUPS_DIR}
 EOF
+}
+
+enable_geany_backups
+exit 0

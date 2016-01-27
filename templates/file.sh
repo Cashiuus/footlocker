@@ -50,9 +50,15 @@ RESET="\033[00m"       # Normal
 #   -w      file exists and write permission granted
 #   -x      file exists and execute permission granted
 #   -z      file is size zero (empty)
-
-
-
 #   [[ $? -eq 0 ]]    Previous command was successful
 #   [[ ! $? -eq 0 ]]    Previous command NOT successful
 #
+
+# --- TOUCH
+#touch
+#touch "$file" 2>/dev/null || { echo "Cannot write to $file" >&2; exit 1; }
+
+# ==================[ GUIDES ]======================
+
+# Using Exit Codes: http://bencane.com/2014/09/02/understanding-exit-codes-and-how-to-use-them-in-bash-scripts/
+# Writing Robust BASH Scripts: http://www.davidpashley.com/articles/writing-robust-shell-scripts/

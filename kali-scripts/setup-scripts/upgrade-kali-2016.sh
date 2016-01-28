@@ -34,15 +34,17 @@ apt-get update
 apt-get -y dist-upgrade
 
 FINISH_TIME=$(date +%s)
-echo -e "${GREEN} [*] Upgrade Completed Successfully ${YELLOW}( Time: $(( $(( FINISH_TIME - START_TIME )) / 60 )) minutes )\n${RESET}"
+echo -e "${GREEN} [*] Upgrade Completed Successfully ${YELLOW} --( Time: $(( $(( FINISH_TIME - START_TIME )) / 60 )) minutes )--\n${RESET}"
 
 ### Install Open VM Tools
-read -n 1 -t 5 -p "Install Open VM Tools? [Y,n]: " -e response
+read -n 1 -t 5 -p "${GREEN} [+]${RESET} Install Open VM Tools? [Y,n]: " -e response
+echo
 case $response in
     [Yy]* ) install_vm_tools;;
 esac
 
-read -n 1 -t 10 -p "Okay to Reboot System now? [Y,n]: " -e response
+read -n 1 -t 10 -p "${GREEN} [+]${RESET} Okay to Reboot System now? [Y,n]: " -e response
+echo
 case $response in
     [Yy]* ) reboot;;
     [Nn]* ) exit 0;;

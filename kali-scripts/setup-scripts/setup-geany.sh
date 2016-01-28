@@ -41,7 +41,7 @@ fi
 # =============================[ CONFIGURE GEANY ]================================ #
 #timeout 5 geany >/dev/null 2>&1
 filedir="${HOME}/.config/geany"
-[[ -d "${filedir}" ]] && mkdir -p "${filedir}"
+[[ ! -d "${filedir}" ]] && mkdir -p "${filedir}"
 file="${HOME}/.config/geany/geany.conf"
 # Geany now only writes its config after a 'clean' quit.
 if [ -e "${file}" ]; then
@@ -150,7 +150,7 @@ fi
 # Build Commands
 # File-dependent build commands go in their own file for each filetype
 filedir="${HOME}/.config/geany/filedefs"
-[[ -d "${filedir}" ]] && mkdir -p "${filedir}"
+[[ ! -d "${filedir}" ]] && mkdir -p "${filedir}"
 file="${filedir}/filetypes.python"
 cat << EOF > "${file}"
 [build-menu]
@@ -191,7 +191,7 @@ sed -i 's#^.*active_plugins.*#active_plugins=/usr/lib/geany/htmlchars.so;/usr/li
 function enable_geany_backups {
     mkdir -p "${BACKUPS_DIR}"
     mkdir -p "${HOME}/.config/geany/plugins/saveactions"
-    file=/root/.config/geany/plugins/saveactions/saveactions.conf
+    file="/root/.config/geany/plugins/saveactions/saveactions.conf"
     [[ -e "${file}" ]] && cp -n $file{,.bkup}
     cat <<EOF > "${file}"
 [saveactions]

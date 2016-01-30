@@ -6,4 +6,6 @@
 *.log
 *.ovpn
 *.cap
+*.local
 mybuilds.conf
+motd

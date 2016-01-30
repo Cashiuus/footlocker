@@ -1,24 +1,26 @@
 #!/bin/bash
-# ==============================================================================
+## =============================================================================
 # File:     setup-gnome.sh
-# Author:   cashiuus@gmail.com
-# Created:  10/10/2015
-# Revised:  
+#
+# Author:   Cashiuus
+# Created:  11/27/2015  - Revised:  01/30/2016
 #
 # Purpose:  Configure GNOME settings on fresh Kali 2.x install
 #
-# ==============================================================================
+## =============================================================================
 __version__="0.1"
 __author__="Cashiuus"
-## Text Colors
-RED="\033[01;31m"      # Issues/Errors
+## ========[ TEXT COLORS ]================= ##
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings/Information
+RED="\033[01;31m"      # Issues/Errors
 BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
+## =========[ CONSTANTS ]================ ##
 
 
+# =============================[      ]================================ #
 # Disable idle timeout to screensaver
 gsettings set org.gnome.desktop.session idle-delay 0
 
@@ -83,8 +85,6 @@ dconf write /org/gnome/shell/extensions/TaskBar/desktop-button-icon "'/usr/share
 dconf write /org/gnome/shell/extensions/TaskBar/tray-button-icon "'/usr/share/gnome-shell/extensions/TaskBar@zpydr/images/bottom-panel-tray-button.svg'"
 
 
-
-
 #--- Gedit
 gsettings set org.gnome.gedit.preferences.editor display-line-numbers true
 gsettings set org.gnome.gedit.preferences.editor editor-font "'Monospace 10'"
@@ -112,3 +112,10 @@ gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
 gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
 
 
+
+function finish {
+    # Any script-termination routines go here
+
+}
+# End of script
+trap finish EXIT

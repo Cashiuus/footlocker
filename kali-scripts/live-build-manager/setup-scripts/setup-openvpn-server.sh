@@ -1,70 +1,80 @@
 #!/bin/bash
-#-Metadata----------------------------------------------------#
-# Filename: setup-openvpn-server.sh     (Update: 17-Jan-2016) #
-#-Author------------------------------------------------------#
-#  cashiuus - cashiuus@gmail.com                              #
-#-Licence-----------------------------------------------------#
-#  MIT License ~ http://opensource.org/licenses/MIT           #
-#-Notes-------------------------------------------------------#
-#                                                             #
-# Usage: Setup OpenVPN Server and prep all certs needed.      #
-#        Uses the newer easy-rsa3 version to generate         #
-#        the certificate package.                             #
-#        Lastly, we merge all client certs into a             #
-#        singular embedded client config file.                #
-#                                                             #
-#-------------------------------------------------------------#
-# OpenVPN Hardening Cheat Sheet: http://darizotas.blogspot.com/2014/04/openvpn-hardening-cheat-sheet.html
+## =============================================================================
+# Filename: setup-openvpn-server.sh
+# Created:      -   Revised: 17-Jan-2016
 #
-
-# ----- EDIT VARIABLES ----- #
-VPN_PREP_DIR="${HOME}/vpn-setup"
-VPN_SERVER=''
-VPN_PORT='443'
-CLIENT_NAME="client-public"
-VPN_SUBNET="10.9.8.0"
-# -------------------------- #
-
-# ------[ Text Colors ]----------- #
-RED="\033[01;31m"      # Issues/Errors
+# Author:   cashiuus - cashiuus@gmail.com
+#
+# MIT License ~ http://opensource.org/licenses/MIT
+#-Notes------------------------------------------------------------------------#
+#
+# Usage: Setup OpenVPN Server and prep all certs needed.
+#        Uses the newer easy-rsa3 version to generate
+#        the certificate package.
+#        Lastly, we merge all client certs into a
+#        singular embedded client config file.
+#
+# OpenVPN Hardening Cheat Sheet: http://darizotas.blogspot.com/2014/04/openvpn-hardening-cheat-sheet.html
+## =============================================================================
+__version__="0.1"
+__author__="Cashiuus"
+## ========[ TEXT COLORS ]================= ##
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings/Information
+RED="\033[01;31m"      # Issues/Errors
 BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
-
+## =========[ CONSTANTS ]================ ##
+SCRIPT_DIR=$(readlink -f $0)
+APP_BASE=$(dirname ${SCRIPT_DIR})
+VPN_PREP_DIR="${HOME}/vpn-setup"
+VPN_SERVER=''
+VPN_PORT='1194'
+VPN_SUBNET="10.9.8.0"
+CLIENT_NAME="client1"
+# ===============================[ Check Permissions ]============================== #
+ACTUAL_USER=$(env | grep SUDO_USER | cut -d= -f 2)
+## Exit if the script was not launched by root or through sudo
+if [[ ${EUID} -ne 0 ]]; then
+    echo "The script needs to run as sudo/root" && exit 1
+fi
 # ==================================[ Begin Script ]================================= #
 sudo apt-get install openvpn openssl -y
 service openvpn stop
 openvpn --version
+sleep 2
 
-if [[ ! -d "${HOME}/easy-rsa" ]]; then
-	git clone git://github.com/OpenVPN/easy-rsa
+if [[ ! -f "${APP_BASE}/../config/mybuilds.conf" ]]; then
+    # If custom config is present, use it for VPN server specs
+    source "${APP_BASE}/../config/mybuilds.conf"
+elif [[ $VPN_SERVER == '' ]]; then
+    echo -e "${YELLOW}[ERROR] << Invalid VPN Server >> Missing VPN Server variable, check script constants and/or builds configuration file existence."
+    exit 1
+fi
+
+filedir="${HOME}/git/easy-rsa"
+if [[ ! -d "${filedir}" ]]; then
+    mkdir -p "${filedir}"
+    cd "${filedir}"
+    git clone git://github.com/OpenVPN/easy-rsa
 fi
 
 [[ ! -d "${VPN_PREP_DIR}" ]] && mkdir -p "${VPN_PREP_DIR}"
-# Copy Easy-Rsa3 directly into a setup folder
+# Copy Easy-Rsa3 directly into the setup folder
 # Cannot use "*" within quotes, because inside quotes, special chars do not expand
-cp -u ${HOME}/easy-rsa/easyrsa3/* ${VPN_PREP_DIR}
+cp -R "${filedir}"/easy-rsa/easyrsa3/* "${VPN_PREP_DIR}"
 cd "${VPN_PREP_DIR}"
+
 # NOTE: Can't find a use for vars because you can't control cert output paths, only pki path
 #mv vars.example vars
 
-DO_PURGE='yes'
-if [[ -s "${VPN_PREP_DIR}/pki/ca.crt" ]]; then
-    echo -e "\n${YELLOW}[*] PKI Structure already exists!${RESET}"
-    read -n 1 -p " [+] Purge PKI and start fresh? [y,N]: " -e response
-    echo -e ""
-    case $response in
-        [Yy]* ) break;;
-        [Nn]* ) DO_PURGE='no';;
-        * ) DO_PURGE='no';;
-    esac
-fi
+read -p "[DEBUG] Files copy correctly?"
 
-if [[ ${DO_PURGE} == 'yes' ]]; then
+function new_pki {
     # Clean
     echo -e "${GREEN}[*]${RESET} Initializing a new PKI system within the specified directory path."
+    cd "${VPN_PREP_DIR}"
     ./easyrsa init-pki
     # Result:
         # New PKI Dir: ${VPN_PREP_DIR}/pki
@@ -73,10 +83,23 @@ if [[ ${DO_PURGE} == 'yes' ]]; then
     ./easyrsa build-ca
     # Result:
         # CA Cert now at: ${VPN_PREP_DIR}/pki/ca.crt
+}
+
+# ===============================[ Initialize PKI Infra ]============================== #
+if [[ -s "${VPN_PREP_DIR}/pki/ca.crt" ]]; then
+    echo -e "\n${YELLOW}[*] PKI Structure already exists!${RESET}"
+    read -n 1 -p " [+] Purge PKI and start fresh? [y,N]: " -e response
+    echo -e ""
+    case $response in
+        [Yy]* ) new_pki;;
+    esac
+else
+    [[ ! -d "${VPN_PREP_DIR}/pki" ]] && new_pki
 fi
 
 # Build Server Key, if it doesn't already exist
 if [[ ! -s "${VPN_PREP_DIR}/pki/private/server.key" ]]; then
+    cd "${VPN_PREP_DIR}"
     echo -e "${GREEN}[*]${RESET} Generating Server Key"
     ./easyrsa gen-req server nopass
     # Result:
@@ -108,7 +131,7 @@ fi
 
 # Build Client Key, if it doesn't already exist (*Noticing a trend?!?)
 if [[ ! -f "${VPN_PREP_DIR}/pki/private/${CLIENT_NAME}.key" ]]; then
-    echo -e "${GREEN}[*]${RESET} Generating Client Certificate"
+    echo -e "${GREEN}[*]${RESET} Generating Client Certificate/Key Pair"
     ./easyrsa gen-req "${CLIENT_NAME}" nopass
     sleep 3
     echo -e "${GREEN}[*]${RESET} Sign Client Certificate; Enter CA Passphrase below"
@@ -117,8 +140,8 @@ if [[ ! -f "${VPN_PREP_DIR}/pki/private/${CLIENT_NAME}.key" ]]; then
     # entering the password, see: https://bbs.archlinux.org/viewtopic.php?id=150440
     # Result:
     #   Keypair and certificate request completed. Your files are:
-    #   request:    /root/easy-rsa/easyrsa3/pki/reqs/client1.req
-    #   key:        /root/easy-rsa/easyrsa3/pki/private/client1.key
+    #       request:    ${VPN_PREP_DIR}/pki/reqs/client1.req
+    #       key:        ${VPN_PREP_DIR}/pki/private/client1.key
     # -----------------------[ BUILD CLIENT OVPN FILE - merge.sh ]----------------------------- #
     echo -e "${GREEN}[*]${RESET} Building Client conf/ovpn File"
     ca="${VPN_PREP_DIR}/pki/ca.crt"
@@ -131,8 +154,8 @@ if [[ ! -f "${VPN_PREP_DIR}/pki/private/${CLIENT_NAME}.key" ]]; then
     file="${CLIENT_NAME}.conf"
     cat << EOF > "${file}"
 client
-dev tap
-proto tcp
+dev tun
+proto udp
 # remote server IP
 remote $VPN_SERVER $VPN_PORT
 resolv-retry infinite
@@ -146,14 +169,14 @@ verb 3
 mute 20
 EOF
 
-    #	Delete pre-existing entries to keys and certs first
+    #   Delete pre-existing entries to keys and certs first
         sed -i \
         -e '/ca .*'$ca'/d'  \
         -e '/cert .*'$cert'/d' \
         -e '/key .*'$key'/d' \
         -e '/tls-auth .*'$tlsauth'/d' $file
 
-    #	Add keys and certs inline
+    #   Add keys and certs inline
     echo "key-direction 1" >> $file
 
     echo "<ca>" >> $file
@@ -181,10 +204,10 @@ fi
 file="/etc/openvpn/server.conf"
 cat <<EOF > "${file}"
 daemon
-dev tap
+dev tun
 port $VPN_PORT
 # TCP is more reliable than UDP if behind a proxy
-proto tcp
+proto udp
 tls-server
 # --Certs--
 # HMAC Protection, Server is 0, Client is 1
@@ -194,7 +217,7 @@ cert server.crt
 key server.key
 dh dhparam.pem
 # VPN Subnet to use; Gateway being 10.9.8.1
-server 10.9.8.0 255.255.255.0
+server ${VPN_SUBNET} 255.255.255.0
 
 # Maintain a record of IP associations. If a client goes down
 # it will reconnect and be given the same IP address
@@ -249,8 +272,8 @@ EOF
 
 # If we want, we can enable backend routes on the client
 # To enable this, you first place "route 192.158.1.0 255.255.255.0"
-# into the server.conf, then uncomment the line below. 
-# This will give that subnet access to the VPN and vice versa. Only works if routing, 
+# into the server.conf, then uncomment the line below.
+# This will give that subnet access to the VPN and vice versa. Only works if routing,
 # not bridging...e.g. using "dev tun" and "server" directives.
 #iroute 192.168.1.0 255.255.255.0
 #EOF
@@ -258,9 +281,9 @@ EOF
 
 # Copy all server keys to /etc/openvpn/ if they've been updated
 echo -e "${GREEN}[*]${RESET} Moving Server Certificate Files to /etc/openvpn/"
+cd "${VPN_PREP_DIR}"
 cp -u ./{dhparam.pem,ta.key} /etc/openvpn/
 cp -u pki/ca.crt /etc/openvpn/
-
 
 # Make sure all cert/key files are set to 644
 chmod 644 /etc/openvpn/{ca.crt,server.crt,server.key,ta.key,dhparam.pem}
@@ -285,13 +308,10 @@ cd ~
 echo -e "${GREEN}[*]${RESET} Restarting OpenVPN Service to Initialize VPN Server"
 service openvpn restart
 sleep 5
-# Ensure Apache is not bound to port 443 (ssl) or server cannot bind to port 443
-# NOTE: Disable SSL anytime with command: a2dismod ssl; service apache2 restart
-netstat -nutlap | grep 443
 
 
 echo -e "\n${YELLOW}[+] Enable OpenVPN for Autostart${RESET}"
-read -n 1 -p " [+] Enable OpenVPN for Autostart?${RESET} [Y,n]: " -i "y" -e response
+read -n 1 -p "     [+] Enable OpenVPN for Autostart? [Y,n]: " -i "y" -e response
 echo -e ""
 case $response in
     [Yy]* ) ENABLE='yes';;
@@ -300,6 +320,10 @@ case $response in
 esac
 [[ ${ENABLE} == 'yes' ]] && systemctl enable openvpn
 
+# Ensure Apache is not bound to port 443 (ssl) or server cannot bind to port 443
+# NOTE: Disable SSL anytime with command: a2dismod ssl; service apache2 restart
+echo -e "Netstat of VPN Server: "
+netstat -nutlap | grep "${VPN_PORT}"
 
 echo -e "\n${GREEN}============================================================${RESET}"
 echo -e "\tVPN SERVER:\t${VPN_SERVER}"

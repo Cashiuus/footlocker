@@ -1,13 +1,13 @@
 #!/bin/bash
-## 
+##
 ## http://live.debian.net/manual/3.x/html/live-manual/index.en.html
 ## ========================================================================== ##
-# Build Focus: 		Minimal ISO with auto-install & reverse VPN Agent
+# Build Focus:          Minimal ISO with auto-install & reverse VPN Agent
 #
-# Desktop:      	xfce
-# Metapackages: 	metasploit,nmap,openvpn
-# ISO Size: 		885 MB
-# Special Notes: 	Default login is root/toor
+# Desktop:              xfce
+# Metapackages:         metasploit,nmap,openvpn
+# ISO Size:             885 MB
+# Special Notes:        Default login is root/toor
 #
 # Look & Feel:
 ## ========================================================================== ##
@@ -23,8 +23,7 @@ BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 ## ========================================================================== ##
 
-
-# ================[ Dev Prep - install dependencies ]=================== #
+# =============================[ Dev Prep ]=============================== #
 if [[ -s "${SCRIPT_DIR}/common.sh" ]]; then
     source "${SCRIPT_DIR}/common.sh"
 else
@@ -35,15 +34,14 @@ fi
 BUILD_NAME="2-kali-reverse-vpn-live"
 BUILD_VARIANT="variant-light"
 BUILD_ARCH="amd64"
-BUILD_DIST="sana"
+BUILD_DIST="kali-rolling"
 ## ========================================================================== ##
 
 init_project
-
 #echo -e "[DEBUG] init_project complete, test pass?"
 #read
 
-# ==================[ Begin Script-Specific Customization ]==================== #
+# ==================[ Recipe-Specific Customization ]==================== #
 # Additional Tools/Pkgs
 cd "${BUILD_DIR}"
 file="${BUILD_DIR}/kali-config/${BUILD_VARIANT}/package-lists/kali.list.chroot"
@@ -76,17 +74,7 @@ chmod +x "${file}/setup-pivot.sh"
 
 
 # OpenVPN  ----
-cd "${BUILD_DIR}"
-file="config/includes.chroot/etc/openvpn"
-[[ ! -d "${file}" ]] && mkdir -p "${file}"
-# If an all-in-one client file exists, just copy the conf, else copy all req'd files
-if [[ -s "${VPN_CLIENT_CONF}" ]]; then
-	rm -rf "${file}"/*
-	cp "${VPN_CLIENT_CONF}" config/includes.chroot/etc/openvpn/
-else
-    echo -e "${YELLOW} [-] Missing VPN client package. Please create one or remove VPN from this build script"
-    exit 1
-fi
+setup_vpn
 
 
 # Hook 01: Auto-Start Services on boot
@@ -268,9 +256,9 @@ d-i time/zone string US/Eastern
 # Will auto-select disk, but to declare specific disk use line below
 #d-i partman-auto/disk string /dev/sda
 
-# Methods: 	'regular': usual partition types
-#			'lvm': use LVM to partition the disk
-#			'crypto': use LVN withn an encrypted partition
+# Methods:      'regular': usual partition types
+#                       'lvm': use LVM to partition the disk
+#                       'crypto': use LVN withn an encrypted partition
 d-i partman-auto/method string regular
 # Below are settings if an old LVM config is previously present
 d-i partman-lvm/device_remove_lvm boolean true
@@ -278,9 +266,9 @@ d-i partman-md/device_remove_md boolean true
 d-i partman-lvm/confirm boolean true
 d-i partman-lvm/confirm_nooverwrite boolean true
 
-# Recipes:	'atomic': All files in one partition
-#		    'home': Separate /home partition
-#		    'multi': Separate /home, /var, /tmp partitions
+# Recipes:      'atomic': All files in one partition
+#                   'home': Separate /home partition
+#                   'multi': Separate /home, /var, /tmp partitions
 d-i partman-auto/choose_recipe select atomic
 
 # Accept Partition Selections
@@ -358,19 +346,19 @@ cd "${BUILD_DIR}"
 
 STR_VARIANT=$(echo $BUILD_VARIANT | cut -d "-" -f2)
 sleep 3
-#./build.sh 
-#	--distribution {sana,} (*or instead, use*) --kali-dev or --kali-rolling
-#	--variant {gnome,kde,xfce,mate,e17,lxde,i3wm,light} 
-#		*Each valid variant has a folder within "./live-build-config/kali-config/"
-#	--arch
-#	--get-image-path
-#	--subdir
+#./build.sh
+#       --distribution {sana,} (*or instead, use*) --kali-dev or --kali-rolling
+#       --variant {gnome,kde,xfce,mate,e17,lxde,i3wm,light}
+#               *Each valid variant has a folder within "./live-build-config/kali-config/"
+#       --arch
+#       --get-image-path
+#       --subdir
 #./build.sh --distribution ${BUILD_DIST} --variant ${STR_VARIANT} --subdir "${BUILD_NAME}" --verbose
 # *NOTE: 'light' variant does not include openvpn so it was added in preseed.cfg
 ./build.sh --distribution ${BUILD_DIST} --variant ${STR_VARIANT} --verbose
 
 if [ $? -ne 0 ]; then
-	echo -e "${RED} [-] Error with ${BUILD_NAME} build process${RESET}"
+        echo -e "${RED} [-] Error with ${BUILD_NAME} build process${RESET}"
     exit 1
 fi
 # =========================[ Post-Build - Move ISO ]========================== #

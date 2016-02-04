@@ -14,7 +14,14 @@ function check_root {
     fi
 }
 # ===========[ Functions for all Live Build Recipes ]============= #
+function check_connectivity() {
+    netcheck=$(ip addr)
+}
+
+
 function update_kali() {
+    # Check for network connectivity
+    #check_connectivity
     apt-get update -qq
     # *NOTE: On 9/10/2015, Kali changed from cdebootstrap to debootstrap due to live-build 5.x
     apt-get install -y -qq git live-build debootstrap devscripts kali-archive-keyring apt-cacher-ng
@@ -35,6 +42,14 @@ EOF
     echo -e "${YELLOW} [WARN] Open file for editing and press ANY KEY when ready to continue...${RESET}"
     read
     init_project
+}
+
+function print_banner() {
+    echo -e "\n${BLUE}=================[  ${RESET}${BOLD}Kali 2.x Live Build Engine  ${RESET}${BLUE}]=================${RESET}"
+    echo -e "  ${BOLD}Build Name:${RESET}\t\t${BUILD_NAME}"
+    echo -e "  ${BOLD}Build Variant:${RESET}\t${BUILD_VARIANT}"
+    echo -e "  ${BOLD}Build Path:${RESET}\t\t${BUILD_DIR}"
+    echo -e "${BLUE}=========================<${RESET} version: ${__version__} ${BLUE}>=========================\n${RESET}"
 }
 
 
@@ -68,11 +83,7 @@ function init_project() {
         #shopt -u dotglob
     fi
 
-    echo -e "\n${BLUE}=================[  Kali 2.x Live Build Engine  ]=================${RESET}"
-    echo -e "\tBuild Name:\t${BUILD_NAME}"
-    echo -e "\tBuild Variant:\t${BUILD_VARIANT}"
-    echo -e "\tBuild Path:\t${BUILD_DIR}"
-    echo -e "${BLUE}=========================< version: ${__version__} >=========================\n${RESET}"
+    print_banner
     update_kali
     # -------- Setup a build cache -- to make future builds much faster
     # Launch apt-cache if not already running
@@ -82,17 +93,42 @@ function init_project() {
 }
 
 
-# === [ Post-Build ] === #
+function start_build() {
+    echo -e "\n ${GREEN}[*] =====${RESET}[ Begin Live Build ]${GREEN}===== [*] ${RESET}"
+    cd "${BUILD_DIR}"
+    STR_VARIANT=$(echo $BUILD_VARIANT | cut -d "-" -f2)
+    #./build.sh
+    #       --distribution {sana,} (*or instead, use*) --kali-dev or --kali-rolling
+    #       --variant {gnome,kde,xfce,mate,e17,lxde,i3wm,light}
+    #               *Each valid variant has a folder within "./live-build-config/kali-config/"
+    #       --arch
+    #       --get-image-path
+    #       --subdir
+    #./build.sh --distribution ${BUILD_DIST} --variant ${STR_VARIANT} --subdir "${BUILD_NAME}" --verbose
+    ./build.sh --distribution ${BUILD_DIST} --variant ${STR_VARIANT} --verbose
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}[ERROR] with ${BUILD_NAME} build process${RESET}"
+        exit 1
+    fi
+}
+
+# ======================== [ Post-Build ] ================================= #
 function build_completion() {
     FINISH_TIME=$(date +%s)
     # Remove default from string, output filename only includes variant if it's not the default
     if [[ $STR_VARIANT == 'default' ]]; then
         ISO_NAME="kali-linux-${BUILD_DIST}-${BUILD_ARCH}.iso"
+    fi
+    if [[ ${BUILD_DIST} == 'kali-rolling' ]]; then
+        echo -e "${YELLOW}[DEBUG] ${RESET}Distro kali-rolling in use. Renamed expected ISO."
+        ISO_NAME="kali-linux-${STR_VARIANT}-rolling-${BUILD_ARCH}.iso"
     else
         ISO_NAME="kali-linux-${STR_VARIANT}-${BUILD_DIST}-${BUILD_ARCH}.iso"
     fi
     ISO_FILE="${IMAGES_DIR}/${ISO_NAME}"
-    echo -e "${GREEN} -- Build Completed Successfully ${YELLOW}( Time: $(( $(( FINISH_TIME - START_TIME )) / 60 )) minutes )${GREEN} --\n${RESET}"
+
+    print_banner
+    echo -e "${GREEN}[*] ===[ Build Completed Successfully ]=== ${YELLOW}( Time: $(( $(( FINISH_TIME - START_TIME )) / 60 )) minutes )${GREEN}\n${RESET}"
 
     echo -e "${GREEN}[*]${RESET} Copying finished ISO to www Directory"
     #echo -e "${GREEN}Location of ISO:${RESET} ${ISO_FILE}"
@@ -104,25 +140,26 @@ function build_completion() {
 }
 
 
-# === [ SSH ] === #
-function configure_ssh() {
+# ============================== [ SSH ] =============================== #
+function setup_ssh() {
     #
     # SSH  -------- Create SSH key w/o password since it's for an agent
     echo -e "${GREEN}[*]${RESET} Configuring SSH Capability"
     cd "${BUILD_DIR}"
     [[ ! -s "${HOME}/.ssh/id_rsa" ]]  &&   ssh-keygen -b 2048 -t rsa -f $HOME/.ssh/id_rsa -P ""
-    file="config/includes.chroot/root/.ssh"
-    [[ ! -d "${file}" ]] && mkdir -p "${file}"
-    [[ -s "${file}/authorized_keys" ]] && rm "${file}/authorized_keys"
-    cp -u "${HOME}/.ssh/id_rsa.pub" "${file}/authorized_keys"
-}
+    filedir="config/includes.chroot/root/.ssh"
+    [[ ! -d "${filedir}" ]] && mkdir -p "${filedir}"
 
+    # Put our public key into the authorized file for the agent so we can SSH into it
+    [[ -s "${filedir}/authorized_keys" ]] && rm "${filedir}/authorized_keys"
+    cp -u "${HOME}/.ssh/id_rsa.pub" "${filedir}/authorized_keys"
 
-function install_git() {
-    #TODO: Function to clone git repo
-    CLONE_PATH='/opt/git'
+    # TODO: Set it up to run the "setup-ssh-server.sh" file after install
+    filedir="config/includes.chroot/root/scripts"
+    [[ ! -d "${filedir}" ]] && mkdir -p "${filedir}"
+    echo -e "${GREEN}[*] ===> ${RESET}Placing 'setup-ssh-server.sh' into build image"
+    cp "${APP_BASE}/setup-scripts/setup-ssh-server.sh" "${filedir}/"
 
-    git clone -q ${1} || echo -e '[ERROR] Problem cloning ${1}'
 }
 
 
@@ -143,7 +180,7 @@ function setup_vpn {
     file="config/includes.chroot/etc/openvpn"
     [[ ! -d "${file}" ]] && mkdir -p "${file}"
     # If an all-in-one client file exists, just copy the conf
-    echo -e "[*] Using VPN Client File: ${VPN_CLIENT_CONF}"
+    echo -e "${GREEN}[*]${RESET} Using VPN Client File: ${VPN_CLIENT_CONF}"
 
     if [[ -f "${VPN_CLIENT_CONF}" ]]; then
         echo -e "${GREEN}[*] ${RESET}VPN Client file found in build"
@@ -158,4 +195,22 @@ function setup_vpn {
         echo -e "${YELLOW} [ERROR] << Missing VPN client package >> ${RESET}Please create one or remove VPN from this build script.\n\n"
         exit 1
     fi
+}
+
+
+
+
+function xfce4_default_layout() {
+    # Copy default xfce4 desktop layout folder shell over
+
+    cp -R "${APP_BASE}"/config/includes/. "${BUILD_DIR}/config/includes.chroot/"
+}
+
+
+
+function install_git() {
+    #TODO: Function to clone git repo
+    CLONE_PATH='/opt/git'
+
+    git clone -q ${1} || echo -e '[ERROR] Problem cloning ${1}'
 }

@@ -1,0 +1,27 @@
+### My Base Package List
+arp-scan
+geany
+leafpad
+rdesktop
+screen
+socat
+tshark
+vlan
+
+
+### Below is what is is variant "light" package list
+# You always want those
+kali-desktop-live
+
+# Kali applications
+iceweasel
+openssh-server
+nmap
+ncrack
+sqlmap
+aircrack-ng
+
+# A light desktop
+kali-desktop-xfce
+
+### Below are add-ons that are added within recipe scripts

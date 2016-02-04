@@ -47,6 +47,8 @@ https://github.com/NerdyProjects/hostapd-wpe-extended
 https://github.com/inquisb/icmpsh
 https://github.com/fgont/ipv6toolkit
 #https://github.com/lair-framework/lair
+# Lanmap2 creates visualizations of a LAN based on passively sifted information
+https://github.com/rflynn/lanmap2
 https://github.com/rapid7/metasploit-framework
 https://github.com/xillwillx/MiniReverse_Shell_With_Parameters
 https://github.com/attactics/NMAPgrapher

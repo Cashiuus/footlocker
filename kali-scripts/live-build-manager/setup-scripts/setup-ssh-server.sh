@@ -18,8 +18,8 @@
 ## ========================================================================== ##
 __version__="0.1"
 __author__='Cashiuus'
-SCRIPT_PATH=$(readlink -f $0)
-SCRIPT_DIR=$(dirname ${SCRIPT_PATH})
+SCRIPT_DIR=$(readlink -f $0)
+APP_BASE=$(dirname ${SCRIPT_DIR})
 ## ===============[ Text Colors ]================ ##
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings/Information
@@ -30,8 +30,8 @@ RESET="\033[00m"       # Normal
 ## ========================================================================== ##
 
 
-if [[ -s "${SCRIPT_DIR}/config/settings.local" ]]; then
-    source "${SCRIPT_DIR}/config/settings.local"
+if [[ -f "${APP_BASE}/../config/mybuilds.conf" ]]; then
+    source "${APP_BASE}/../config/mybuilds.conf"
 else
     echo -e "${RED} [-] ERROR: ${RESET} settings.local file is missing."
     echo -e
@@ -129,7 +129,7 @@ EOF
 fi
 
 # TODO: Create a user specifically for ssh so we aren't connecting as root
-#   This would also require SSH certificates setup to be performed from this user 
+#   This would also require SSH certificates setup to be performed from this user
 #   or copied to their $HOME
 #apt-get -y install sudo
 #useradd -m sshuser
@@ -164,7 +164,7 @@ sed -i -e 's|\(ServerKeyBits\) 1024|\1 2048|' "${file}"
 sed -i 's/^LoginGraceTime.*/LoginGraceTime 60/' "${file}"
 
 # -- Enable Public Key Logins
-sed -i 's|#AuthorizedKeysFile.*|AuthorizedKeysFile	%h/.ssh/authorized_keys|' "${file}"
+sed -i 's|#AuthorizedKeysFile.*|AuthorizedKeysFile  %h/.ssh/authorized_keys|' "${file}"
 
 # -- Disable Password Logins if using Pub Key Auth
 #sed -i 's/^PasswordAuthentication.*/PasswordAuthentication yes/' "${file}"
@@ -207,7 +207,7 @@ restrict_login_geoip() {
     geoiplookup 8.8.8.8
     echo -e "${GREEN} [*] Testing Geoip${RESET}; Did it work? Press any key to continue"
     read
-    
+
     # Create script that will check IPs and return True or False
     file="/usr/local/bin/sshfilter.sh"
     cat << EOF > "${file}"
@@ -235,15 +235,15 @@ else
 fi
 EOF
     chmod +x "${file}"
-    
+
     # Set the default to deny all
     echo "sshd: ALL" >> /etc/hosts.deny
     # Set the filter script to determine which hosts are allowed
     echo "sshd: ALL: aclexec /usr/local/bin/sshfilter.sh %a" >> /etc/hosts.allow
-    
+
     # Test it out
     /usr/local/bin/sshfilter.sh 8.8.8.8
     sleep 2
     tail /var/log/messages
-    
+
 }

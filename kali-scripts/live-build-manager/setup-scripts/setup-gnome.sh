@@ -24,10 +24,10 @@ RESET="\033[00m"       # Normal
 # Disable idle timeout to screensaver
 gsettings set org.gnome.desktop.session idle-delay 0
 
-# ----------------- [ Disable Package Updater Notifications ] ------------------ #
+# =========== [ Disable Package Updater Notifications ] =============== #
 if [[ $(which gnome-shell) ]]; then
     ##### Disabe notification package Updater
-    echo -e "\n ${GREEN}[+]${RESET} Disabling notification ${GREEN}package updater${RESET} service"
+    echo -e "\n ${GREEN}[*]${RESET} Disabling notification ${GREEN}package updater${RESET} service"
     export DISPLAY=:0.0   #[[ -z $SSH_CONNECTION ]] || export DISPLAY=:0.0
     dconf write /org/gnome/settings-daemon/plugins/updates/active false
     dconf write /org/gnome/desktop/notifications/application/gpk-update-viewer/active false
@@ -35,24 +35,111 @@ if [[ $(which gnome-shell) ]]; then
 fi
 
 
-# ------------------- [ Extensions ] ----------------------- #
+
+gsettings set org.gnome.desktop.background show-desktop-icons true
+# not sure how to control desktop icon size
+
+# ========[ Nautilus ]============= #
+gsettings set org.gnome.nautilus.preferences show-hidden-files true               # Default: wfalse
+#gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'   # Default: icon-view
+#gsettings set org.gnome.nautilus.icon-view thumbnail-size                        # Default: 64
+gsettings set org.gnome.nautilus.window-state sidebar-width 188                   # Default: 188
+gsettings set org.gnome.nautilus.window-state start-with-sidebar true             # Default: true
+gsettings set org.gnome.nautilus.window-state maximized false                     # Default: false
+gsettings set org.gnome.nautilus.list-view default-visible-columns ['name', 'size', 'type', 'date_modified']
+gsettings set org.gnome.nautilus.list-view default-column-order ['name', 'date_modified', 'size', 'type']
+gsettings set org.gnome.nautilus.list-view default-zoom-level 'small'             # Default: 'small'
+gsettings set org.gnome.nautilus.list-view use-tree-view true                     # Default: false
+gsettings set org.gnome.nautilus.preferences sort-directories-first true          # Default: false
+
+# ========[ Gedit ]
+gsettings set org.gnome.gedit.preferences.editor display-line-numbers true
+gsettings set org.gnome.gedit.preferences.editor editor-font "'Monospace 10'"
+gsettings set org.gnome.gedit.preferences.editor insert-spaces true
+gsettings set org.gnome.gedit.preferences.editor right-margin-position 90
+gsettings set org.gnome.gedit.preferences.editor tabs-size 4                      # Default: uint32 8
+gsettings set org.gnome.gedit.preferences.editor create-backup-copy false
+gsettings set org.gnome.gedit.preferences.editor auto-save false
+gsettings set org.gnome.gedit.preferences.editor scheme 'classic'
+gsettings set org.gnome.gedit.preferences.editor ensure-trailing-newline true
+gsettings set org.gnome.gedit.preferences.editor auto-indent true         # Default: false
+gsettings set org.gnome.gedit.preferences.editor syntax-highlighting true
+gsettings set org.gnome.gedit.state.window side-panel-size 150                    # Default: 200
+gsettings set org.gnome.gedit.preferences.ui bottom-panel-visible true            # Default: false
+gsettings set org.gnome.gedit.preferences.ui toolbar-visible true
+
+
+
+# =======[ Workspaces ]
+gsettings set org.gnome.shell.overrides dynamic-workspaces false
+gsettings set org.gnome.desktop.wm.preferences num-workspaces 3
+#--- Top bar
+gsettings set org.gnome.desktop.interface clock-show-date true
+org.gnome.desktop.interface toolbar-icons-size 'large'       # Default: 'large'
+
+
+
+
+# TODO: Modify the default "favorite apps"
+gsettings set org.gnome.shell favorite-apps "['iceweasel.desktop', 'gnome-terminal.desktop', 'org.gnome.Nautilus.desktop', 'kali-burpsuite.desktop', 'kali-msfconsole.desktop', 'geany.desktop']"
+
+
+
+# Titlebar Font - Originally it is 'Cantarell Bold 11'
+gsettings set org.gnome.desktop.wm.preferences titlebar-uses-system-font false
+gsettings set org.gnome.desktop.wm.preferences titlebar-font "'Droid Bold 10'"
+
+#--- Disable tracker service (But enables it in XFCE)
+gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
+gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
+
+
+
+
+
+
+# ========================== [ 3rd Party Extensions ] =============================== #
 mkdir -p "/usr/share/gnome-shell/extensions/"
 # ===[ Extension: TaskBar ]==== #
 git clone -q https://github.com/zpydr/gnome-shell-extension-taskbar.git /usr/share/gnome-shell/extensions/TaskBar@zpydr/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
 #--- Gnome Extensions (Enable)
-for EXTENSION in "alternate-tab@gnome-shell-extensions.gcampax.github.com" "TaskBar@zpydr" "Bottom_Panel@rmy.pobox.com" "Panel_Favorites@rmy.pobox.com" "Move_Clock@rmy.pobox.com"; do
-  GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed 's_^.\(.*\).$_\1_')
-  echo "${GNOME_EXTENSIONS}" | grep -q "${EXTENSION}" || gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}, '${EXTENSION}']"
-done
 
-for EXTENSION in "dash-to-dock@micxgx.gmail.com" "workspace-indicator@gnome-shell-extensions.gcampax.github.com"; do
-  GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed "s_^.\(.*\).\$_\1_; s_, '${EXTENSION}'__")
-  gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}]"
-done
+
+
+function enable_frippery() {
+  mkdir -p ~/.local/share/gnome-shell/extensions/
+  timeout 300 curl --progress -k -L -f "http://frippery.org/extensions/gnome-shell-frippery-0.9.3.tgz" > /tmp/frippery.tgz || echo -e ' '${RED}'[!]'${RESET}" Issue downloading frippery.tgz" 1>&2
+  tar -zxf /tmp/frippery.tgz -C ~/
+}
+
+
+enable_frippery
+
+function enable_icon_hider() {
+  git clone -q https://github.com/ikalnitsky/gnome-shell-extension-icon-hider.git /usr/share/gnome-shell/extensions/icon-hider@kalnitsky.org/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
+
+}
+enable_icon_hider
+
+
+enable_extensions_conf() {
+  for EXTENSION in "alternate-tab@gnome-shell-extensions.gcampax.github.com" "TaskBar@zpydr" "Bottom_Panel@rmy.pobox.com" "Panel_Favorites@rmy.pobox.com" "Move_Clock@rmy.pobox.com"; do
+  GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed 's_^.\(.*\).$_\1_')
+    echo "${GNOME_EXTENSIONS}" | grep -q "${EXTENSION}" || gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}, '${EXTENSION}']"
+  done
+
+  for EXTENSION in "dash-to-dock@micxgx.gmail.com" "workspace-indicator@gnome-shell-extensions.gcampax.github.com"; do
+    GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed "s_^.\(.*\).\$_\1_; s_, '${EXTENSION}'__")
+    gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}]"
+  done
+}
+enable_extensions_conf
+
+
 
 #--- Dock settings
 gsettings set org.gnome.shell.extensions.dash-to-dock extend-height true        # Set dock to use the full height
-gsettings set org.gnome.shell.extensions.dash-to-dock dock-position 'RIGHT'     # Set dock to the right
+gsettings set org.gnome.shell.extensions.dash-to-dock dock-position 'LEFT'      # Set dock to the right
 gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed true           # Set dock always visible
 
 #--- TaskBar (Global)
@@ -85,31 +172,7 @@ dconf write /org/gnome/shell/extensions/TaskBar/desktop-button-icon "'/usr/share
 dconf write /org/gnome/shell/extensions/TaskBar/tray-button-icon "'/usr/share/gnome-shell/extensions/TaskBar@zpydr/images/bottom-panel-tray-button.svg'"
 
 
-#--- Gedit
-gsettings set org.gnome.gedit.preferences.editor display-line-numbers true
-gsettings set org.gnome.gedit.preferences.editor editor-font "'Monospace 10'"
-gsettings set org.gnome.gedit.preferences.editor insert-spaces true
-gsettings set org.gnome.gedit.preferences.editor right-margin-position 90
-gsettings set org.gnome.gedit.preferences.editor tabs-size 4
 
-
-#--- Workspaces
-gsettings set org.gnome.shell.overrides dynamic-workspaces false
-gsettings set org.gnome.desktop.wm.preferences num-workspaces 3
-#--- Top bar
-gsettings set org.gnome.desktop.interface clock-show-date true
-
-# TODO: Modify the default "favorite apps"
-gsettings set org.gnome.shell favorite-apps "['iceweasel.desktop', 'gnome-terminal.desktop', 'org.gnome.Nautilus.desktop', 'kali-burpsuite.desktop', 'kali-msfconsole.desktop', 'geany.desktop']"
-
-# Titlebar Font - Originally it is 'Cantarell Bold 11'
-gsettings set org.gnome.desktop.wm.preferences titlebar-font "'Droid Bold 10'"
-gsettings set org.gnome.desktop.wm.preferences titlebar-uses-system-font false
-
-
-#--- Disable tracker service (But enables it in XFCE)
-gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
-gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
 
 
 

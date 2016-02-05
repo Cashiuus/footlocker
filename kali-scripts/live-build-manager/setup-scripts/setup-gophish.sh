@@ -27,7 +27,7 @@ apt-get -y install golang
 [[ ! -d ~/workspace ]] && mkdir -p ~/workspace
 cd ~/workspace
 file="${HOME}/.bashrc"
-grep -q 'GOPATH=${HOME}/workspace' "${file}" || echo 'export GOPATH="${HOME}/workspace"' >> "${file}"
+grep -q 'GOPATH="\${HOME}/workspace"' "${file}" || echo 'export GOPATH="${HOME}/workspace"' >> "${file}"
 
 source "${HOME}/.bashrc"
 
@@ -47,6 +47,7 @@ function enable_tls() {
     file="${HOME}/workspace/src/github.com/gophish/gophish/config.json"
 
     # Generate a Certificate to enable TLS
+    apt-get -y install openssl-server
     openssl req -newkey rsa:2048 -nodes -keyout "${filedir}/gophish.key" -x509 -days 365 -out "${filedir}/gophish.crt"
 
     #"use_tls" : true,
@@ -87,7 +88,7 @@ function finish {
 trap finish EXIT
 
 
-# ================[ Gophish Templates Available Variables ]====================
+# ================[ Gophish Templates/Landing Pages Available Variables ]====================
 #   {{.FirstName}}  The target’s first name
 #   {{.LastName}}   The target’s last name
 #   {{.Position}}   The target’s position
@@ -95,7 +96,7 @@ trap finish EXIT
 #   {{.TrackingURL}} The URL to the tracking handler
 #   {{.Tracker}}    An alias for <img src=”{{.TrackingUrl}}”/>
 #   {{.URL}}        The phishing URL
-# =============================================================================
+# ============================================================================================
 
 
 

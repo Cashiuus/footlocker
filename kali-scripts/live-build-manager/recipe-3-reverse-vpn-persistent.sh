@@ -53,6 +53,22 @@ setup_ssh
 # === [ OpenVPN ] === ##
 setup_vpn
 
+
+# ======================[ Stage 2: Hooks ]=========================
+# Hook 01: Auto-Start Services on boot
+#file="config/hooks"
+cd "${BUILD_DIR}"
+filedir="kali-config/common/hooks"
+[[ ! -d "${filedir}" ]] && mkdir -p "${filedir}"
+cat << EOF > "${filedir}/0501-start-services.hook.chroot"
+#!/bin/bash
+update-rc.d -f openvpn enable
+update-rc.d -f ssh enable
+EOF
+chmod +x "${filedir}/0501-start-services.hook.chroot"
+
+
+# ======================[ Stage 3: Includes ]=========================
 # Includes: IPTables Reminder Script
 cd "${BUILD_DIR}"
 filedir="kali-config/common/includes.chroot/root/Desktop"
@@ -72,18 +88,6 @@ echo -e "\troute add -net 192.168.101.0/24 gw 10.9.8.2"
 EOF
 chmod +x "${filedir}/setup-pivot.sh"
 
-
-# Hook 01: Auto-Start Services on boot
-#file="config/hooks"
-cd "${BUILD_DIR}"
-filedir="kali-config/common/hooks"
-[[ ! -d "${filedir}" ]] && mkdir -p "${filedir}"
-cat << EOF > "${filedir}/0501-start-services.chroot"
-#!/bin/bash
-update-rc.d -f openvpn enable
-update-rc.d -f ssh enable
-EOF
-chmod +x "${filedir}/0501-start-services.chroot"
 
 
 # Binary 01: Override default manu, disabling the BELL sound (^G)

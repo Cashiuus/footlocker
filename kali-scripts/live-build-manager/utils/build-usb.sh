@@ -23,6 +23,7 @@ ls -l /dev/disk/by-id
 # or type 'fdisk -l'
 ### lsblk will show all devices and partitions in a tree structure
 lsblk
+blkid
 
 echo -e ""
 read -p "[*] From the list above, locate your USB Device and enter its device label now (.e.g sdb): " -e response
@@ -65,9 +66,12 @@ echo -e "${BLUE}========================================================\n${RESE
 #mkpart primary 5000 100%
 #q
 
+#parted ${MY_USB} --script -- mkpart primary 901 5000
+#parted ${MY_USB} --script -- mkpart primary 5000 100%
+
 read -p "[* POST-COPY] If in a VM, you may need to disconnect and re-connect the USB at this time to proceed. Press ENTER when done."
 
-#
+# Show the device and partition list to ensure they were created
 #fdisk -l /dev/${MY_USB}
 
 # Create the persistence functionality
@@ -165,4 +169,5 @@ read -p "[* POST-COPY] If in a VM, you may need to disconnect and re-connect the
 #   mkntfs
 #
 
-
+## Zero write wipe a USB drive 2GB in size (hence 2048)
+# dd if=/dev/zero of=/dev/sdb bs=1k count=2048

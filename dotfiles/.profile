@@ -1,10 +1,10 @@
 ### For Reference:
-###		.bashrc			- Executes for all non-login BASH shells 
-###							(e.g. scripts with #!/bin/bash)
-###		.bash_profile	- Executes for all login BASH shells
-###		.profile		- Executes for all login shells, not just BASH
-###		
-### 
+###             .bashrc                 - Executes for all non-login BASH shells
+###                                                     (e.g. scripts with #!/bin/bash)
+###             .bash_profile   - Executes for all login BASH shells
+###             .profile                - Executes for all login shells, not just BASH
+###
+###
 
 #if [ "$BASH" ]; then
 #  if [ -f ~/.bashrc ]; then
@@ -15,5 +15,3 @@
 ### Controls write-access to terminal; 'n' disallows write access
 #mesg y
 
-### Enable the ssh-agent handler that helps with ssh keys
-source ~/.bash_sshagent

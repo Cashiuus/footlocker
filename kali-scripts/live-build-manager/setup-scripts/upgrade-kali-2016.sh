@@ -4,7 +4,7 @@
 #
 # Author:   Cashiuus
 # Created:  01/25/2016
-# Revised:  
+# Revised:
 #
 # Purpose:  Perform the steps necessary to upgrade Kali
 #
@@ -37,13 +37,13 @@ FINISH_TIME=$(date +%s)
 echo -e "${GREEN} [*] Upgrade Completed Successfully ${YELLOW} --( Time: $(( $(( FINISH_TIME - START_TIME )) / 60 )) minutes )--\n${RESET}"
 
 ### Install Open VM Tools
-read -n 1 -t 5 -p "${GREEN} [+]${RESET} Install Open VM Tools? [Y,n]: " -e response
+read -n 1 -t 5 -p "[+] Install Open VM Tools? [Y,n]: " -e response
 echo
 case $response in
     [Yy]* ) install_vm_tools;;
 esac
 
-read -n 1 -t 10 -p "${GREEN} [+]${RESET} Okay to Reboot System now? [Y,n]: " -e response
+read -n 1 -t 10 -p "[+] Okay to Reboot System now? [y,N]: " -e response
 echo
 case $response in
     [Yy]* ) reboot;;

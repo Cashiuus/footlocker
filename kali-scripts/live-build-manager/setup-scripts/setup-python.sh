@@ -12,7 +12,7 @@
 #-------------------------------------------------------------#
 
 INSTALL_PY3="true"
-DEFAULT_VERSION="2"	# Set to 3 for py3; Determines which is activated at the end
+DEFAULT_VERSION="2" # Set to 3 for py3; Determines which is activated at the end
 py2version="2.7"
 py3version="3.4"
 
@@ -27,9 +27,9 @@ RESET="\033[00m"       # Normal
 
 # Determine active shell to update the correct resource file
 if [[ "${SHELL}" == "/usr/bin/zsh" ]]; then
-	SHELL_FILE=~/.zshrc
+    SHELL_FILE=~/.zshrc
 else
-	SHELL_FILE=~/.bashrc
+    SHELL_FILE=~/.bashrc
 fi
 
 # Pre-requisites
@@ -57,17 +57,24 @@ EOF
 
 pip install -r /tmp/requirements.txt
 
+# TODO: kali comes with some pip packages already on it and they are from apt-get packages
+#pip install pip --upgrade
+#pip install argparse --upgrade
+
+# Figure out which outdated $(pip list --oudated) pip packages are apt pkgs and which are not
+# update the ones that are not so we don't break apt repo package installs.
+
 
 # Install Python 3.4.x
 if [ $INSTALL_PY3 == "true" ]; then
-	apt-get -y -qq install python3
+    apt-get -y -qq install python3
 fi
 
 
 echo -e "\n ${GREEN}-----------${RESET}[ Creating Virtual Environments ]${GREEN}-----------${RESET}"
 if [ ! -e /usr/local/bin/virtualenvwrapper.sh ]; then
-	# apt-get package symlinking to where this file is expected to be
-	ln -s /usr/share/virtualenvwrapper/virtualenvwrapper.sh /usr/local/bin/virtualenvwrapper.sh
+    # apt-get package symlinking to where this file is expected to be
+    ln -s /usr/share/virtualenvwrapper/virtualenvwrapper.sh /usr/local/bin/virtualenvwrapper.sh
 fi
 source /usr/local/bin/virtualenvwrapper.sh
 
@@ -82,8 +89,8 @@ EOF
 
 # Virtual Environment Setup - Python 3.4.x
 if [ $INSTALL_PY3 == "true" ]; then
-	#/usr/local/opt/python-${py3version}/bin/pyvenv env-${py3version}
-	mkvirtualenv env-${py3version} -p /usr/bin/python${py3version}
+    #/usr/local/opt/python-${py3version}/bin/pyvenv env-${py3version}
+    mkvirtualenv env-${py3version} -p /usr/bin/python${py3version}
 fi
 
 # Virtual Environment Setup - Python 2.7.x
@@ -100,9 +107,9 @@ source "${file}"
 # Finally, activate the desired default
 echo -e "\n ${GREEN}-----------${RESET}[ Setup Complete - Activating Environment ]${GREEN}-----------${RESET}"
 if [ $DEFAULT_VERSION == "3" ]; then
-	workon env-${py3version}
+    workon env-${py3version}
 else
-	workon env-${py2version}
+    workon env-${py2version}
 fi
 
 # Install or upgrade a package to ALL virtualenvs

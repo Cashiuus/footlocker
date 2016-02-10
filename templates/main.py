@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # ==============================================================================
-# File:				
-# Dependencies:		
-# Compatibility:    2.7+
-# Created:	        01/22/2016
-# Revised:		    
-# Author:			Cashiuus - Cashiuus@gmail.com
+# File:
+# Depends:
+# Compat:       2.7+
+# Created:      01/22/2016  -   Revised:
+# Author:       Cashiuus - Cashiuus@gmail.com
 #
-# Purpose: 			
-#					
+# Purpose:
+#
 # ==============================================================================
 #  Copyright (C) 2016 Cashiuus <cashiuus@gmail.com>
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -53,10 +52,9 @@ import os
 
 
 def main():
-    
+
     return
 
 
 if __name__ == '__main__':
     main()
-

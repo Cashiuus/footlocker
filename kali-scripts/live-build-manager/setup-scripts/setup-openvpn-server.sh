@@ -310,8 +310,8 @@ service openvpn restart
 sleep 5
 
 
-echo -e "\n${YELLOW}[+] Enable OpenVPN for Autostart${RESET}"
-read -n 1 -p "     [+] Enable OpenVPN for Autostart? [Y,n]: " -i "y" -e response
+echo -e -n "\n${YELLOW}[+] Enable OpenVPN for Autostart:${RESET}"
+read -n 1 -p " [Y,n]: " -i "y" -e response
 echo -e ""
 case $response in
     [Yy]* ) ENABLE='yes';;

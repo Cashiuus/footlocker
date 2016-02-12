@@ -27,20 +27,21 @@ RED="\033[01;31m"      # Issues/Errors
 BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
-## ========================================================================== ##
-
+## ==================================[ BEGIN ]===================================== ##
 
 if [[ -f "${APP_BASE}/../config/mybuilds.conf" ]]; then
     source "${APP_BASE}/../config/mybuilds.conf"
 else
-    echo -e "${RED} [-] ERROR: ${RESET} settings.local file is missing."
+    echo -e "${YELLOW}[-] ERROR: ${RESET} settings.local file is missing."
+    echo -e -n "${GREEN}[+] ${RESET}"
+    read -p "Enter SSH Server IP: " -e SSH_SERVER_IP
     echo -e
-    read -p "${GREEN} [+] Enter SSH Server IP: " -e SSH_SERVER_IP
-    echo -e
-    echo -e "${GREEN} [+] Enter SSH Server Port: "
+    echo -e -n "${GREEN}[+] ${RESET} Enter SSH Server Port: "
     read SSH_SERVER_PORT
+    echo -e
 fi
 
+echo -e "${GREEN} [*] ${RESET}Running apt-get update & installing openssh-server..."
 apt-get -qq update
 apt-get -y -qq install openssh-server openssl
 update-rc.d -f ssh remove
@@ -48,11 +49,14 @@ update-rc.d -f ssh defaults
 
 # Move the default Kali keys to backup folder
 cd /etc/ssh
-mkdir insecure_original_kali_keys
-mv ssh_host_* insecure_original_kali_keys/
+if [[ ! -d insecure_original_kali_keys ]]; then
+    mkdir insecure_original_kali_keys
+    mv ssh_host_* insecure_original_kali_keys/
+    DO_MD5='yes'
+fi
 
 # Wipe clean any ssh keys in root profile, leaving authorized_keys file intact
-[[ ! -d "${HOME}/.ssh"]] && mkdir -p "${HOME}/.ssh"
+[[ ! -d "${HOME}/.ssh" ]] && mkdir -p "${HOME}/.ssh"
 find "${HOME}/.ssh/" -type f ! -name authorized_keys -delete
 
 # Get the currently-installed version of openssh-server
@@ -78,7 +82,8 @@ function version_check () {
 version_check $ver 6.5
 if [ $? == 0 ]; then
     echo -e "[*] Newer OpenSSH Version detected, proceeding with new key format"
-    ssh-keygen -b 4096 -t rsa1 -o -f /etc/ssh/ssh_host_key -P ""
+    #TODO: -o fails for this key type: ssh-keygen -b 4096 -t rsa1 -o -f /etc/ssh/ssh_host_key -P ""
+    ssh-keygen -b 4096 -t rsa1 -f /etc/ssh/ssh_host_key -P ""
     ssh-keygen -b 2048 -t rsa -o -f /etc/ssh/ssh_host_rsa_key -P ""
     ssh-keygen -b 1024 -t dsa -o -f /etc/ssh/ssh_host_dsa_key -P ""
     ssh-keygen -b 521 -t ecdsa -o -f /etc/ssh/ssh_host_ecdsa_key -P ""
@@ -98,18 +103,22 @@ chmod 0644 "${HOME}/.ssh/id_rsa.pub"
 chmod 0400 "${HOME}/.ssh/id_rsa"
 
 
-# Compare MD5 to ensure new key is different from original
-echo -e "[*] Compare the MD5 Hashes below to ensure new key is, in fact, new!"
-openssl md5 /etc/ssh/default_kali_keys/ssh_host_*
-openssl md5 /etc/ssh/ssh_host_*
-sleep 5
+function md5_compare() {
+    # Compare MD5 to ensure new key is different from original
+    echo -e "[*] Compare the MD5 Hashes below to ensure new key is, in fact, new!"
+    openssl md5 /etc/ssh/insecure_original_kali_keys/ssh_host_*
+    openssl md5 /etc/ssh/ssh_host_*
+    sleep 5
+}
+[[ ${DO_MD5} ]] && md5_compare
+
 
 # Copy Public key to auth file; Private key goes to client
 # TODO: May need to insert this at the top, and appned existing keys below it
 # to avoid old key being read first if this key is replacing an existing entry
 file="${HOME}/.ssh/authorized_keys"
 cat "${HOME}/.ssh/id_rsa.pub" >> "${file}"
-# NOTE: authorized_keys file should be set to 644
+# NOTE: authorized_keys file should be set to 644 according to google which is never wrong ever amirite?
 chmod 644 "${file}"
 
 # Configure the MOTD banner message remote users see, 2 versions below
@@ -148,10 +157,11 @@ sed -i 's|^[#B]anner /etc/issue\.net|Banner /etc/motd|g' $file
 #sed -i 's/^Banner \/etc\/issue\.net/Banner \/etc\/motd/g' $file
 
 # Change SSH port to non-default
-file=/etc/ssh/sshd_config; [ -e $file ] && cp -n $file{,.bkup}
-sed -i 's/^[#P]ort.*/Port 60022/g' $file
+file=/etc/ssh/sshd_config; [[ -e $file ]] && cp -n $file{,.bkup}
+sed -i "s/^[#P]ort.*/Port ${SSH_SERVER_PORT}/g" "${file}"
 
-#sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/g' "${file}"
+# Enable RootLogin
+sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/g' "${file}"
 
 # Host Keys
 # -- All are same, but put a '#' in front of: HostKey /etc/ssh/ssh_host_ed25519_key

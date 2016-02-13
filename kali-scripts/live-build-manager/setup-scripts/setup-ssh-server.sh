@@ -41,7 +41,7 @@ else
     echo -e
 fi
 
-echo -e "${GREEN} [*] ${RESET}Running apt-get update & installing openssh-server..."
+echo -e "${GREEN}[*] ${RESET}Running apt-get update & installing openssh-server..."
 apt-get -qq update
 apt-get -y -qq install openssh-server openssl
 update-rc.d -f ssh remove
@@ -185,7 +185,7 @@ sed -i 's|#AuthorizedKeysFile.*|AuthorizedKeysFile  %h/.ssh/authorized_keys|' "$
 sed -i 's/^X11DisplayOffset.*/X11DisplayOffset 15/' "${file}"
 
 # -- Ciphers
-grep -q '^Ciphers ' "${file}" 2>/dev/null || echo "\nCiphers aes256-ctr,aes192-ctr,aes128-ctr" >> "${file}"
+grep -q '^Ciphers ' "${file}" 2>/dev/null || echo "Ciphers aes256-ctr,aes192-ctr,aes128-ctr" >> "${file}"
 
 # -- Add Inactivty Timeouts
 #echo "\nClientAliveInterval 600\nClientAliveCountMax 3" >> "${file}"

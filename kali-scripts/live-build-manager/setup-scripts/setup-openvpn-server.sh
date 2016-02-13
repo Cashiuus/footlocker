@@ -41,16 +41,22 @@ if [[ ${EUID} -ne 0 ]]; then
 fi
 # ==================================[ Begin Script ]================================= #
 sudo apt-get install openvpn openssl -y
-service openvpn stop
-openvpn --version
-sleep 2
 
-if [[ ! -f "${APP_BASE}/../config/mybuilds.conf" ]]; then
+if [[ $(which openvpn) ]]; then
+    #service openvpn stop
+    systemctl stop openvpn
+    openvpn --version
+    sleep 2
+fi
+
+if [[ -f "${APP_BASE}/../config/mybuilds.conf" ]]; then
     # If custom config is present, use it for VPN server specs
     source "${APP_BASE}/../config/mybuilds.conf"
 elif [[ $VPN_SERVER == '' ]]; then
     echo -e "${YELLOW}[ERROR] << Invalid VPN Server >> Missing VPN Server variable, check script constants and/or builds configuration file existence."
-    exit 1
+    echo -e -n "${GREEN}[+] ${RESET}"
+    read -p "Enter OpenVPN Server IP: " -e VPN_SERVER
+    echo -e
 fi
 
 filedir="${HOME}/git/easy-rsa"
@@ -86,10 +92,10 @@ function new_pki {
 }
 
 # ===============================[ Initialize PKI Infra ]============================== #
-if [[ -s "${VPN_PREP_DIR}/pki/ca.crt" ]]; then
-    echo -e "\n${YELLOW}[*] PKI Structure already exists!${RESET}"
+if [[ -f "${VPN_PREP_DIR}/pki/ca.crt" ]]; then
+    echo -e "\n${YELLOW} [*] PKI Structure already exists!${RESET}"
     read -n 1 -p " [+] Purge PKI and start fresh? [y,N]: " -e response
-    echo -e ""
+    echo -e
     case $response in
         [Yy]* ) new_pki;;
     esac
@@ -98,7 +104,7 @@ else
 fi
 
 # Build Server Key, if it doesn't already exist
-if [[ ! -s "${VPN_PREP_DIR}/pki/private/server.key" ]]; then
+if [[ ! -f "${VPN_PREP_DIR}/pki/private/server.key" ]]; then
     cd "${VPN_PREP_DIR}"
     echo -e "${GREEN}[*]${RESET} Generating Server Key"
     ./easyrsa gen-req server nopass
@@ -306,7 +312,8 @@ sed -i 's|^#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' "${file}"
 # Finish
 cd ~
 echo -e "${GREEN}[*]${RESET} Restarting OpenVPN Service to Initialize VPN Server"
-service openvpn restart
+#service openvpn restart
+systemctl start openvpn
 sleep 5
 
 
@@ -322,8 +329,9 @@ esac
 
 # Ensure Apache is not bound to port 443 (ssl) or server cannot bind to port 443
 # NOTE: Disable SSL anytime with command: a2dismod ssl; service apache2 restart
-echo -e "Netstat of VPN Server: "
+echo -e "[*] Netstat of VPN Server: "
 netstat -nutlap | grep "${VPN_PORT}"
+sleep 3
 
 echo -e "\n${GREEN}============================================================${RESET}"
 echo -e "\tVPN SERVER:\t${VPN_SERVER}"
@@ -331,4 +339,4 @@ echo -e "\tVPN Port:\t${VPN_PORT}"
 echo -e "\tClient CN:\t${CLIENT_NAME}"
 echo -e "\tClient Conf:\t${VPN_PREP_DIR}/${CLIENT_NAME}.conf"
 echo -e "${GREEN}============================================================${RESET}"
-echo -e "\t\t${GREEN}[*]${RESET} OpenVPN Setup Complete!"
+echo -e "\t\t${GREEN}[*]${RESET} OpenVPN Setup Complete!\n\n"

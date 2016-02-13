@@ -1,18 +1,18 @@
 #!/bin/bash
 ## =============================================================================
 # Filename: setup-openvpn-server.sh
-# Created:      -   Revised: 17-Jan-2016
 #
 # Author:   cashiuus - cashiuus@gmail.com
+# Created:      -   (Revised: 17-Jan-2016)
 #
 # MIT License ~ http://opensource.org/licenses/MIT
-#-Notes------------------------------------------------------------------------#
+#-[ Notes ]---------------------------------------------------------------------
 #
-# Usage: Setup OpenVPN Server and prep all certs needed.
-#        Uses the newer easy-rsa3 version to generate
-#        the certificate package.
-#        Lastly, we merge all client certs into a
-#        singular embedded client config file.
+# Purpose:  Setup OpenVPN Server and prep all certs needed.
+#           Uses the newer easy-rsa3 version to generate
+#           the certificate package.
+#           Lastly, we merge all client certs into a
+#           singular embedded client config file.
 #
 # OpenVPN Hardening Cheat Sheet: http://darizotas.blogspot.com/2014/04/openvpn-hardening-cheat-sheet.html
 ## =============================================================================
@@ -31,6 +31,7 @@ APP_BASE=$(dirname ${SCRIPT_DIR})
 VPN_PREP_DIR="${HOME}/vpn-setup"
 VPN_SERVER=''
 VPN_PORT='1194'
+VPN_PROTOCOL='udp'
 VPN_SUBNET="10.9.8.0"
 CLIENT_NAME="client1"
 # ===============================[ Check Permissions ]============================== #
@@ -121,18 +122,27 @@ if [[ ! -f "${VPN_PREP_DIR}/pki/private/server.key" || ! -f "${VPN_PREP_DIR}/pki
     cp -u pki/issued/server.crt /etc/openvpn/
 fi
 
-# Build Server DH Key
+# ===[ Build Server DH Key ]===
 if [[ ! -f "${VPN_PREP_DIR}/dhparam.pem" ]]; then
     echo -e "${GREEN}[*]${RESET} Generating Diffie Hellman Key"
     openssl dhparam -out dhparam.pem 4096
-    #openssl dhparam -out dhparam.pem 2048
 fi
 
-# Build Static HMAC Key that prevents certain DoS attacks
+# ===[ Build Static HMAC Key that prevents certain DoS attacks ]===
 if [[ ! -f "${VPN_PREP_DIR}/ta.key" ]]; then
     echo -e "${GREEN}[*]${RESET} Generating HMAC Key"
     /usr/sbin/openvpn --genkey --secret ta.key
 fi
+
+
+# ===[ CLIENT KEY PAIR ]===
+if [[ ${CLIENT_NAME} == "client1" ]]; then
+    echo -e "\n${YELLOW}[+] Default Client Cert Detected!${RESET}\n"
+    echo -e "${YELLOW}[+] ${RESET}"
+    read -t 10 -p "Keep this or specify a custom name [client1]:" -i "client1" -e CLIENT_NAME
+    echo -e
+fi
+
 
 # Build Client Key, if it doesn't already exist (*Noticing a trend?!?)
 if [[ ! -f "${VPN_PREP_DIR}/pki/private/${CLIENT_NAME}.key" ]]; then
@@ -160,7 +170,7 @@ if [[ ! -f "${VPN_PREP_DIR}/pki/private/${CLIENT_NAME}.key" ]]; then
     cat << EOF > "${file}"
 client
 dev tun
-proto udp
+proto ${VPN_PROTOCOL}
 # remote server IP
 remote $VPN_SERVER $VPN_PORT
 resolv-retry infinite
@@ -201,7 +211,9 @@ EOF
     echo "</tls-auth>" >> $file
 else
     echo -e "${RED}[-] ERROR:${RESET} This client (${CLIENT_NAME}) already has an issued key pair."
-    echo -e "${RED}[-]${RESET} To make a new request, you must first revoke the original with: ./easyrsa revoke <name>. Then, you may also need to manually delete this client's \".crt, .key, and .req\" files."
+    echo -e "${RED}[-]${RESET} To make a new request, you must first revoke the original with:"
+    echo -e "${RED}[-]${RESET}\t${GREEN}./easyrsa revoke <cert_name>${RESET}"
+    echo -e "\n${RED}[-]${RESET} Then, you may also need to manually delete this client's \".crt, .key, and .req\" files.\n\n"
     echo -e "${YELLOW}[*]${RESET} Proceeding with OpenVPN Server setup process."
 fi
 
@@ -211,8 +223,8 @@ cat <<EOF > "${file}"
 daemon
 dev tun
 port $VPN_PORT
-# TCP is more reliable than UDP if behind a proxy
-proto udp
+# FWIW: TCP is more reliable than UDP if behind a proxy
+proto ${VPN_PROTOCOL}
 tls-server
 # --Certs--
 # HMAC Protection, Server is 0, Client is 1
@@ -320,21 +332,18 @@ echo -e -n "\n${YELLOW}[+] Enable OpenVPN for Autostart:${RESET}"
 read -n 1 -p " [Y,n]: " -i "y" -e response
 echo -e ""
 case $response in
-    [Yy]* ) ENABLE='yes';;
-    [Nn]* ) ENABLE='no';;
-    * ) echo "Please answer Y or N";;
+    [Yy]* ) systemctl enable openvpn;;
 esac
-[[ ${ENABLE} == 'yes' ]] && systemctl enable openvpn
 
 # Ensure Apache is not bound to port 443 (ssl) or server cannot bind to port 443
 # NOTE: Disable SSL anytime with command: a2dismod ssl; service apache2 restart
-echo -e "[*] Netstat of VPN Server: "
+echo -e "${GREEN}[*]${RESET} Netstat of VPN Server: "
 netstat -nutlap | grep "${VPN_PORT}"
 sleep 3
 
 echo -e "\n${GREEN}============================================================${RESET}"
 echo -e "\tVPN SERVER:\t${VPN_SERVER}"
-echo -e "\tVPN Port:\t${VPN_PORT}"
+echo -e "\tVPN Port:\t${VPN_PORT}/${VPN_PROTOCOL}"
 echo -e "\tClient CN:\t${CLIENT_NAME}"
 echo -e "\tClient Conf:\t${VPN_PREP_DIR}/${CLIENT_NAME}.conf"
 echo -e "${GREEN}============================================================${RESET}"

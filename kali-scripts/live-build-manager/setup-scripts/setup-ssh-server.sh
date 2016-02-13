@@ -1,21 +1,19 @@
 #!/bin/bash
-#-Metadata----------------------------------------------------#
-# Filename: setup-ssh-server.sh         (Update: 19-Jan-2016) #
-#-Author------------------------------------------------------#
-#  cashiuus - cashiuus@gmail.com                              #
-#-Licence-----------------------------------------------------#
-#  MIT License ~ http://opensource.org/licenses/MIT           #
-#-Notes-------------------------------------------------------#
-#                                                             #
-# Usage:  Setup SSH Server on Kali Linux to non-default port  #
-#          and also replacing original keys with new ones     #
-#                                                             #
-#                                                             #
-#-------------------------------------------------------------#
+## =============================================================================
+# Filename: setup-ssh-server.sh
+#
+# Author:   cashiuus - cashiuus@gmail.com
+# Created:  01-Dec-2015 - (Revised: 12-Feb-2016)
+#
+# MIT License ~ http://opensource.org/licenses/MIT
+#-[ Notes ]---------------------------------------------------------------------
+#
+# Purpose:  Setup SSH Server on Kali Linux to non-default port
+#           and also replacing original keys with new ones
+#
 # Thanks to: https://www.lisenet.com/2013/openssh-server-installation-and-configuration-on-debian/
 #
-#-------------------------------------------------------------#
-## ========================================================================== ##
+## =============================================================================
 __version__="0.1"
 __author__='Cashiuus'
 SCRIPT_DIR=$(readlink -f $0)

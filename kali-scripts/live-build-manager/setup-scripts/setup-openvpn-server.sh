@@ -53,7 +53,7 @@ if [[ -f "${APP_BASE}/../config/mybuilds.conf" ]]; then
     # If custom config is present, use it for VPN server specs
     source "${APP_BASE}/../config/mybuilds.conf"
 elif [[ $VPN_SERVER == '' ]]; then
-    echo -e "${YELLOW}[ERROR] << Invalid VPN Server >> Missing VPN Server variable, check script constants and/or builds configuration file existence."
+    echo -e "${YELLOW}[ERROR] << Invalid VPN Server >> Missing VPN Server variable"
     echo -e -n "${GREEN}[+] ${RESET}"
     read -p "Enter OpenVPN Server IP: " -e VPN_SERVER
     echo -e
@@ -75,7 +75,6 @@ cd "${VPN_PREP_DIR}"
 # NOTE: Can't find a use for vars because you can't control cert output paths, only pki path
 #mv vars.example vars
 
-read -p "[DEBUG] Files copy correctly?"
 
 function new_pki {
     # Clean
@@ -103,8 +102,8 @@ else
     [[ ! -d "${VPN_PREP_DIR}/pki" ]] && new_pki
 fi
 
-# Build Server Key, if it doesn't already exist
-if [[ ! -f "${VPN_PREP_DIR}/pki/private/server.key" ]]; then
+# Build Server Key, if one of the key/crt is missing (in case you accidentally forgot to confirm the crt)
+if [[ ! -f "${VPN_PREP_DIR}/pki/private/server.key" || ! -f "${VPN_PREP_DIR}/pki/issued/server.crt" ]]; then
     cd "${VPN_PREP_DIR}"
     echo -e "${GREEN}[*]${RESET} Generating Server Key"
     ./easyrsa gen-req server nopass

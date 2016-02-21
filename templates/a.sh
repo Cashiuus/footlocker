@@ -3,10 +3,12 @@
 # File:
 #
 # Author:   Cashiuus
-# Created:  01/27/2016
-# Revised:
+# Created:  02/10/2016  - (Revised: )
 #
+# MIT License ~ http://opensource.org/licenses/MIT
+#-[ Notes ]---------------------------------------------------------------------
 # Purpose:
+#
 #
 ## =============================================================================
 __version__="0.1"
@@ -19,7 +21,8 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 ## =========[ CONSTANTS ]================ ##
-
+SCRIPT_DIR=$(readlink -f $0)
+APP_BASE=$(dirname ${SCRIPT_DIR})
 
 # =============================[      ]================================ #
 
@@ -73,7 +76,7 @@ trap finish EXIT
 #   -i ""   Specify a default value. If user hits ENTER or doesn't respond, this value is saved
 #
 
-#Ask for a path with a default value
+# Ask for a path with a default value
 #read -p "Enter the path to the file: " -i "/usr/local/etc/" -e FILEPATH
 
 

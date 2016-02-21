@@ -8,7 +8,7 @@
 # Purpose:  Configure GNOME settings on fresh Kali 2.x install
 #
 ## =============================================================================
-__version__="0.1"
+__version__="0.3"
 __author__="Cashiuus"
 ## ========[ TEXT COLORS ]================= ##
 GREEN="\033[01;32m"    # Success
@@ -26,33 +26,35 @@ gsettings set org.gnome.desktop.session idle-delay 0
 
 # =========== [ Disable Package Updater Notifications ] =============== #
 if [[ $(which gnome-shell) ]]; then
-    ##### Disabe notification package Updater
-    echo -e "\n ${GREEN}[*]${RESET} Disabling notification ${GREEN}package updater${RESET} service"
+    # Disable notification package updater
+    echo -e "\n${GREEN}[*]${RESET} Disabling notification ${GREEN}package updater${RESET} service"
     export DISPLAY=:0.0   #[[ -z $SSH_CONNECTION ]] || export DISPLAY=:0.0
     dconf write /org/gnome/settings-daemon/plugins/updates/active false
     dconf write /org/gnome/desktop/notifications/application/gpk-update-viewer/active false
     timeout 5 killall -w /usr/lib/apt/methods/http >/dev/null 2>&1
+else
+  USING_GNOME=0
 fi
 
-
-
-gsettings set org.gnome.desktop.background show-desktop-icons true
-# not sure how to control desktop icon size
-
-# ========[ Nautilus ]============= #
-gsettings set org.gnome.nautilus.preferences show-hidden-files true               # Default: wfalse
-#gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'   # Default: icon-view
+# ====[ Nautilus ]==== #
+gsettings set org.gnome.nautilus.desktop home-icon-visible true                   # Default: false
+gsettings set org.gnome.nautilus.desktop font "'Cantrell 9'"                      # Default: <blank>
+gsettings set org.gnome.nautilus.preferences show-hidden-files true               # Default: false
+gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'    # Default: icon-view
+gsettings set org.gnome.nautilus.preferences enable-recursive-search false        # Default: true
 #gsettings set org.gnome.nautilus.icon-view thumbnail-size                        # Default: 64
-gsettings set org.gnome.nautilus.window-state sidebar-width 188                   # Default: 188
-gsettings set org.gnome.nautilus.window-state start-with-sidebar true             # Default: true
-gsettings set org.gnome.nautilus.window-state maximized false                     # Default: false
-gsettings set org.gnome.nautilus.list-view default-visible-columns ['name', 'size', 'type', 'date_modified']
-gsettings set org.gnome.nautilus.list-view default-column-order ['name', 'date_modified', 'size', 'type']
+gsettings set org.gnome.nautilus.icon-view default-zoom-level 'small'             # Default: 'standard'
+
+gsettings set org.gnome.nautilus.list-view default-visible-columns "['name', 'size', 'type', 'date_modified']"
+gsettings set org.gnome.nautilus.list-view default-column-order "['name', 'date_modified', 'size', 'type']"
 gsettings set org.gnome.nautilus.list-view default-zoom-level 'small'             # Default: 'small'
 gsettings set org.gnome.nautilus.list-view use-tree-view true                     # Default: false
 gsettings set org.gnome.nautilus.preferences sort-directories-first true          # Default: false
+gsettings set org.gnome.nautilus.window-state sidebar-width 188                   # Default: 188
+gsettings set org.gnome.nautilus.window-state start-with-sidebar true             # Default: true
+gsettings set org.gnome.nautilus.window-state maximized false                     # Default: false
 
-# ========[ Gedit ]
+# ====[ Gedit ]==== #
 gsettings set org.gnome.gedit.preferences.editor display-line-numbers true
 gsettings set org.gnome.gedit.preferences.editor editor-font "'Monospace 10'"
 gsettings set org.gnome.gedit.preferences.editor insert-spaces true
@@ -62,69 +64,51 @@ gsettings set org.gnome.gedit.preferences.editor create-backup-copy false
 gsettings set org.gnome.gedit.preferences.editor auto-save false
 gsettings set org.gnome.gedit.preferences.editor scheme 'classic'
 gsettings set org.gnome.gedit.preferences.editor ensure-trailing-newline true
-gsettings set org.gnome.gedit.preferences.editor auto-indent true         # Default: false
+gsettings set org.gnome.gedit.preferences.editor auto-indent true                 # Default: false
 gsettings set org.gnome.gedit.preferences.editor syntax-highlighting true
-gsettings set org.gnome.gedit.state.window side-panel-size 150                    # Default: 200
 gsettings set org.gnome.gedit.preferences.ui bottom-panel-visible true            # Default: false
 gsettings set org.gnome.gedit.preferences.ui toolbar-visible true
-
-
-
-# =======[ Workspaces ]
-gsettings set org.gnome.shell.overrides dynamic-workspaces false
-gsettings set org.gnome.desktop.wm.preferences num-workspaces 3
-#--- Top bar
-gsettings set org.gnome.desktop.interface clock-show-date true
-org.gnome.desktop.interface toolbar-icons-size 'large'       # Default: 'large'
-
-
-
-
-# TODO: Modify the default "favorite apps"
-gsettings set org.gnome.shell favorite-apps "['iceweasel.desktop', 'gnome-terminal.desktop', 'org.gnome.Nautilus.desktop', 'kali-burpsuite.desktop', 'kali-msfconsole.desktop', 'geany.desktop']"
-
-
-
-# Titlebar Font - Originally it is 'Cantarell Bold 11'
-gsettings set org.gnome.desktop.wm.preferences titlebar-uses-system-font false
-gsettings set org.gnome.desktop.wm.preferences titlebar-font "'Droid Bold 10'"
-
-#--- Disable tracker service (But enables it in XFCE)
-gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
-gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
-
-
-
+gsettings set org.gnome.gedit.state.window side-panel-size 150                    # Default: 200
 
 
 
 # ========================== [ 3rd Party Extensions ] =============================== #
-mkdir -p "/usr/share/gnome-shell/extensions/"
-# ===[ Extension: TaskBar ]==== #
-git clone -q https://github.com/zpydr/gnome-shell-extension-taskbar.git /usr/share/gnome-shell/extensions/TaskBar@zpydr/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
-#--- Gnome Extensions (Enable)
+echo -e "\n${GREEN}[*]${RESET} Configuring 3rd Party GNOME Extensions..."
+[[ ! -d "/usr/share/gnome-shell/extensions/" ]] && mkdir -p "/usr/share/gnome-shell/extensions/"
 
+# ====[ Ext: TaskBar ]==== #
+if [[ ! -d "/usr/share/gnome-shell/extensions/TaskBar@zpydr/" ]]; then
+  git clone -q https://github.com/zpydr/gnome-shell-extension-taskbar.git /usr/share/gnome-shell/extensions/TaskBar@zpydr/
+fi
 
-
+# ====[ Ext: Frippery ]==== #
 function enable_frippery() {
-  mkdir -p ~/.local/share/gnome-shell/extensions/
-  timeout 300 curl --progress -k -L -f "http://frippery.org/extensions/gnome-shell-frippery-0.9.3.tgz" > /tmp/frippery.tgz || echo -e ' '${RED}'[!]'${RESET}" Issue downloading frippery.tgz" 1>&2
+  #mkdir -p ~/.local/share/gnome-shell/extensions/
+  # GNOME 3.14 -> frippery-0.9.5
+  #FRIPPERY_VERSION="gnome-shell-frippery-0.9.5.tgz"
+  # GNOME 3.18 -> frippery-3.18.2
+  FRIPPERY_VERSION="gnome-shell-frippery-3.18.2.tgz"
+  timeout 300 curl --progress -k -L -f "http://frippery.org/extensions/${FRIPPERY_VERSION}" > /tmp/frippery.tgz
   tar -zxf /tmp/frippery.tgz -C ~/
 }
-
-
 enable_frippery
 
+# ====[ Ext: Icon Hider ]==== #
 function enable_icon_hider() {
-  git clone -q https://github.com/ikalnitsky/gnome-shell-extension-icon-hider.git /usr/share/gnome-shell/extensions/icon-hider@kalnitsky.org/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
-
+  filedir="/usr/share/gnome-shell/extensions/icon-hider@kalnitsky.org/"
+  if [[ ! -d "${filedir}" ]]; then
+    mkdir -p "${filedir}"
+    git clone -q https://github.com/ikalnitsky/gnome-shell-extension-icon-hider.git /usr/share/gnome-shell/extensions/icon-hider@kalnitsky.org/
+  fi
 }
 enable_icon_hider
 
 
-enable_extensions_conf() {
-  for EXTENSION in "alternate-tab@gnome-shell-extensions.gcampax.github.com" "TaskBar@zpydr" "Bottom_Panel@rmy.pobox.com" "Panel_Favorites@rmy.pobox.com" "Move_Clock@rmy.pobox.com"; do
-  GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed 's_^.\(.*\).$_\1_')
+function enable_extensions() {
+  # TODO: "Removable drive menu" , "drop-down-terminal" , "Workspaces-to-dock"
+  # Removed from below list: "Panel_Favorites@rmy.pobox.com"
+  for EXTENSION in "alternate-tab@gnome-shell-extensions.gcampax.github.com" "drive-menu@gnome-shell-extensions.gcampax.github.com" "TaskBar@zpydr" "Bottom_Panel@rmy.pobox.com" "Move_Clock@rmy.pobox.com" "icon-hider@kalnitsky.org"; do
+    GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed 's_^.\(.*\).$_\1_')
     echo "${GNOME_EXTENSIONS}" | grep -q "${EXTENSION}" || gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}, '${EXTENSION}']"
   done
 
@@ -133,33 +117,29 @@ enable_extensions_conf() {
     gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}]"
   done
 }
-enable_extensions_conf
+enable_extensions
 
 
-
-#--- Dock settings
-gsettings set org.gnome.shell.extensions.dash-to-dock extend-height true        # Set dock to use the full height
+# ====[ Ext: Dash-to-Dock settings ]==== #
+gsettings set org.gnome.shell.extensions.dash-to-dock extend-height true        # Set dock to use full height
 gsettings set org.gnome.shell.extensions.dash-to-dock dock-position 'LEFT'      # Set dock to the right
 gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed true           # Set dock always visible
 
-#--- TaskBar (Global)
+# ====[ Ext: TaskBar (Global) ]==== #
 # Schema: https://github.com/zpydr/gnome-shell-extension-taskbar/blob/master/schemas/org.gnome.shell.extensions.TaskBar.gschema.xml
 dconf write /org/gnome/shell/extensions/TaskBar/first-start false
 dconf write /org/gnome/shell/extensions/TaskBar/bottom-panel true
-dconf write /org/gnome/shell/extensions/TaskBar/display-favorites true
-#dconf write /org/gnome/shell/extensions/TaskBar/hide-default-application-menu true
-#dconf write /org/gnome/shell/extensions/TaskBar/display-showapps-button false
-#dconf write /org/gnome/shell/extensions/TaskBar/appearance-selection "'showappsbutton'"
-#dconf write /org/gnome/shell/extensions/TaskBar/overview true
-dconf write /org/gnome/shell/extensions/TaskBar/position-appview-button 2
-dconf write /org/gnome/shell/extensions/TaskBar/position-desktop-button 0
-dconf write /org/gnome/shell/extensions/TaskBar/position-favorites 3
-dconf write /org/gnome/shell/extensions/TaskBar/position-max-right 4
-dconf write /org/gnome/shell/extensions/TaskBar/position-tasks 4
-dconf write /org/gnome/shell/extensions/TaskBar/position-workspace-button 1
-dconf write /org/gnome/shell/extensions/TaskBar/position-bottom-box 0           # 0=left, 1=center, 2=right
-dconf write /org/gnome/shell/extensions/TaskBar/icon-size-bottom 26             # Default is 22, height of bottom panel
 dconf write /org/gnome/shell/extensions/TaskBar/bottom-panel-original-background-color "'rgba(57,59,63,0.49647887323943662)'"
+dconf write /org/gnome/shell/extensions/TaskBar/display-favorites true
+dconf write /org/gnome/shell/extensions/TaskBar/position-desktop-button 0
+dconf write /org/gnome/shell/extensions/TaskBar/position-favorites 1
+dconf write /org/gnome/shell/extensions/TaskBar/position-appview-button 2
+dconf write /org/gnome/shell/extensions/TaskBar/position-workspace-button 3
+dconf write /org/gnome/shell/extensions/TaskBar/position-tasks 4
+dconf write /org/gnome/shell/extensions/TaskBar/position-max-right 4
+dconf write /org/gnome/shell/extensions/TaskBar/position-bottom-box 0           # 0=left, 1=center, 2=right
+dconf write /org/gnome/shell/extensions/TaskBar/icon-size-bottom 27             # Default: 22, bottom panel height
+dconf write /org/gnome/shell/extensions/TaskBar/scroll-workspaces "'standard'"  # Default: 'standard', choices: 'off', 'invert'
 dconf write /org/gnome/shell/extensions/TaskBar/separator-two true
 dconf write /org/gnome/shell/extensions/TaskBar/separator-three true
 dconf write /org/gnome/shell/extensions/TaskBar/separator-four true
@@ -173,12 +153,76 @@ dconf write /org/gnome/shell/extensions/TaskBar/tray-button-icon "'/usr/share/gn
 
 
 
+# ====[ Ext: Drop-Down-Terminal ]==== #
+function enable_dropdown_terminal() {
+  # Ext: https://extensions.gnome.org/extension/442/drop-down-terminal/
+  # Git: https://github.com/zzrough/gs-extensions-drop-down-terminal
+  # Default toggle shortcut: ~ (key above left tab)
+  # ALT + ~   Cycle between applications
+  git clone https://github.com/zzrough/gs-extensions-drop-down-terminal /usr/share/gnome-shell/extensions/
+
+}
+
+
+# ==============================[ GNOME Core Settings ]====================================== #
+# Disable tracker service
+gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
+gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
+
+# TODO: Modify the default "favorite apps"
+gsettings set org.gnome.shell favorite-apps "['iceweasel.desktop', 'gnome-terminal.desktop', 'org.gnome.Nautilus.desktop', 'kali-burpsuite.desktop', 'kali-armitage.desktop', 'kali-msfconsole.desktop', 'kali-maltego.desktop', 'kali-beef.desktop', 'kali-faraday.desktop', 'geany.desktop']"
+
+# ====[ GNOME Desktop Settings ]==== #
+gsettings set org.gnome.desktop.background show-desktop-icons true
+gsettings set org.gnome.desktop.wm.preferences titlebar-uses-system-font false
+gsettings set org.gnome.desktop.wm.preferences titlebar-font "'Droid Bold 10'"    # Default: 'Cantarell Bold 11'
+
+# Workspaces
+gsettings set org.gnome.shell.overrides dynamic-workspaces false
+gsettings set org.gnome.desktop.wm.preferences num-workspaces 3
+# Top bar
+gsettings set org.gnome.desktop.interface clock-show-date true
+gsettings set org.gnome.desktop.datetime automatic-timezone true
+gsettings set org.gnome.desktop.interface clock-format '12h'                      # Default: 24h
+gsettings set org.gnome.desktop.interface toolbar-icons-size 'small'              # Default: 'large'
+
+# Privacy
+gsettings set org.gnome.desktop.privacy hide-identity true                        # Default: false
+
 
 
 
 function finish {
-    # Any script-termination routines go here
-
+  # Any script-termination routines go here
+  clear
 }
 # End of script
 trap finish EXIT
+
+# ===============================[ GNOME Executables ]=============================== #
+# gnome-help                  Get a GUI help menu to learn more about gnome
+# gnome-control-center
+# gnome-disk-image-mounter
+# gnome-disks
+# gnome-screenshot
+# gnome-shell-extension-prefs
+# gnome-shell-extension-tool
+# gnome-system-log
+# gnome-system-monitor
+# gnome-terminal
+# gnome-text-editor
+# gnome-tweak-tool
+# gnome-www-browser
+#
+# ===============================[ GNOME Tips & Help ]=============================== #
+# Get version info
+#dpkg -l gnome-shell            # e.g. 3.18.1-1
+
+
+
+
+# Kali 2016 Default Enabled Extensions (via: gsettings get org.gnome.shell enabled-extensions)
+# ['apps-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'ProxySwitcher@flannaghan.com', 'EasyScreenCast@iacopodeenosee.gmail.com', 'refresh-wifi@kgshank.net', 'user-theme@gnome-shell-extensions.gcampax.github.com']
+
+# Kali 2016 Default Favorites (via: gsettings get org.gnome.shell favorite-apps)
+# ['iceweasel.desktop', 'gnome-terminal.desktop', 'org.gnome.Nautilus.desktop', 'kali-msfconsole.desktop', 'kali-armitage.desktop', 'kali-burpsuite.desktop', 'kali-maltego.desktop', 'kali-beef.desktop', 'kali-faraday.desktop', 'leafpad.desktop', 'gnome-tweak-tool.desktop']

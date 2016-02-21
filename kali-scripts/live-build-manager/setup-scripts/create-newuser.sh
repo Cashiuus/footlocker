@@ -1,11 +1,11 @@
 #!/bin/bash
 # ==============================================================================
-# File:     
+# File:     create-newuser.sh
 # Author:   cashiuus@gmail.com
 # Created:  17-Jan-2016
-# Revised:  
+# Revised:
 #
-# Purpose:  
+# Purpose:
 #
 ## ========================================================================== ##
 __version__="0.1"
@@ -31,3 +31,5 @@ useradd -m ${NEW_USER_NAME}
 passwd
 usermod -a -G sudo ${NEW_USER_NAME}
 chsh -s /bin/bash ${NEW_USER_NAME}
+
+# NOTE: Useful file for customizations may be in /etc/adduser.conf

@@ -37,6 +37,8 @@ https://github.com/dradis/dradisframework
 https://github.com/droope/droopescan
 https://github.com/commonexploits/dtpscan
 https://github.com/PowerShellEmpire/Empire
+# Web screenshot and recon (headers, default creds) toolkit
+https://github.com/ChrisTruncer/EyeWitness
 https://github.com/byt3bl33d3r/gcat
 https://github.com/nullmode/gnmap-parser
 https://github.com/OJ/gobuster
@@ -53,6 +55,8 @@ https://github.com/rapid7/metasploit-framework
 https://github.com/xillwillx/MiniReverse_Shell_With_Parameters
 https://github.com/attactics/NMAPgrapher
 https://github.com/SpiderLabs/Nmap-Tools
+# Active Directory forensic framework
+https://github.com/csababarta/ntdsxtract
 https://github.com/superkojiman/onetwopunch
 # Multi-purpose Brute Force (Python) designed to be more reliable than other pw crackers
 https://github.com/lanjelot/patator
@@ -70,6 +74,7 @@ https://github.com/infodox/python-pty-shells
 https://github.com/sensepost/reGeorg
 https://github.com/SpiderLabs/Responder
 https://github.com/ripsscanner/rips
+https://github.com/danielmiessler/robotsdisallowed
 # Generate ROP gadgets and payloads
 https://github.com/packz/ropeme
 https://github.com/sashs/Ropper
@@ -99,6 +104,18 @@ https://github.com/dxa4481/WPA2-HalfHandshake-Crack
 https://github.com/SilentGhostX/HT-WPS-Breaker
 https://github.com/wpscanteam/wpscan
 
+#[Phishing]
+#PhishPoll hasn't been updated since 2013, but good reference
+https://github.com/connection/phishpoll
+https://github.com/gophish/gophish
+https://github.com/sophron/wifiphisher
+https://github.com/pentestgeek/phishing-frenzy
+# templates - TODO: Scrape github for phishing templates
+https://github.com/averagesecurityguy/Phishing
+https://github.com/pentestgeek/phishing-frenzy-templates
+
+
+
 # Miscellaneous
 https://github.com/vrana/adminer
 https://github.com/GNOME/gnome-shell-extensions
@@ -107,3 +124,6 @@ https://github.com/zpydr/gnome-shell-extension-taskbar
 # Share terminal as web application
 #https://github.com/yudai/gotty
 https://github.com/rasa/vmware-tools-patches
+
+# Personal Cloud self-hosted framework
+https://github.com/welcomer/framework

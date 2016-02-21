@@ -2,15 +2,14 @@
 ## =============================================================================
 # File:     setup-kali-base.sh
 #
-# Author:   Cashiuus
-# Created:  01/27/2016
-# Revised:
+# Author:   Cashiuus - @cashiuus
+# Created:  27-Jan-2016  - Revised: 21-Feb-2016
 #
 # Purpose:  Setup bare bones kali with reasonable default options & packages
 #           This script will not perform actions that require reboot (e.g. vm-tools)
 #
 ## =============================================================================
-__version__="0.1"
+__version__="0.2"
 __author__="Cashiuus"
 ## ========[ TEXT COLORS ]================= ##
 GREEN="\033[01;32m"    # Success
@@ -20,19 +19,39 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 ## =========[ CONSTANTS ]================ ##
-
 START_TIME=$(date +%s)
+SCRIPT_DIR=$(readlink -f $0)
+APP_BASE=$(dirname ${SCRIPT_DIR})
+
+GIT_BASE_DIR="/opt/git"
+GIT_DEV_DIR="${HOME}/git"
+
+# TODO: Clean this up
+source modules/vfeed_install.sh
+
+# =============================[  BEGIN APPLICATION  ]================================ #
 # Adjust timeout before starting because lock screen has caused issues during upgrade
 gsettings set org.gnome.desktop.session idle-delay 0
 
 
+function print_banner() {
+    echo -e "\n${BLUE}=============[  ${RESET}${BOLD}Kali 2016 Base Pentest Installer  ${RESET}${BLUE}]=============${RESET}"
+    cat /etc/os-release
+    cat /proc/version
+    uname -a
+    lsb_release -a
+    echo -e "${BLUE}=====================<${RESET} version: ${__version__} ${BLUE}>=====================\n${RESET}"
+}
+print_banner
 
 # =============================[ APT Packages ]================================ #
 # Change the apt/sources.list repository listings to just a single entry:
 echo "deb http://http.kali.org/kali kali-rolling main non-free contrib" > /etc/apt/sources.list
+#export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get -y dist-upgrade
 apt-get -y install build-essential locate sudo gcc git htop make sysv-rc-conf
+apt-get -y autoremove
 
 # Add dpkg for opposing architecture "dpkg --add-architecture amd64
 
@@ -47,10 +66,20 @@ apt-get -y install build-essential locate sudo gcc git htop make sysv-rc-conf
 
 
 
+# ====[ Configure - Nautilus ]==== #
+
+dconf write /org/gnome/nautilus/preferences/show-hidden-files true
+
 
 
 
 # =============================[ Folder Structure ]================================ #
+
+# Create folders in /opt
+for ' '
+
+# Create folders in ~
+for 'git engagements pendrop .virtualenvs'; do
 
 
 
@@ -70,12 +99,30 @@ apt-get -y install build-essential locate sudo gcc git htop make sysv-rc-conf
 
 # =============================[ Github/Git Repositories ]================================ #
 
+# ===[ vFeed ]=== #
+vfeed_install "${GIT_BASE_DIR}" || echo -e "${RED}[-]${RESET} Error installing vfeed"
+
+
+
+
+
+
 
 
 
 
 FINISH_TIME=$(date +%s)
 echo -e "${GREEN} [*] Kali Base Setup Completed Successfully ${YELLOW} --( Time: $(( $(( FINISH_TIME - START_TIME )) / 60 )) minutes )--\n${RESET}"
+
+echo -e "${GREEN}=========${RESET}[ OS Specs ]${GREEN}=========${RESET}"
+cat /etc/os-release
+cat /proc/version
+uname -a
+lsb_release -a
+echo -e "${GREEN}=====================================${RESET}"
+
+
+
 
 function finish {
     # Any script-termination routines go here, but function cannot be empty

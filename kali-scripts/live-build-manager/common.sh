@@ -16,11 +16,11 @@ function check_root {
 # ===========[ Functions for all Live Build Recipes ]============= #
 function check_connectivity() {
     netcheck=$(ip addr)
+    # TODO:
 }
 
 
 function update_kali() {
-    # Check for network connectivity
     #check_connectivity
     apt-get update -qq
     # *NOTE: On 9/10/2015, Kali changed from cdebootstrap to debootstrap due to live-build 5.x

@@ -140,13 +140,25 @@ dconf write /org/gnome/shell/extensions/TaskBar/position-max-right 4
 dconf write /org/gnome/shell/extensions/TaskBar/position-bottom-box 0           # 0=left, 1=center, 2=right
 dconf write /org/gnome/shell/extensions/TaskBar/icon-size-bottom 27             # Default: 22, bottom panel height
 dconf write /org/gnome/shell/extensions/TaskBar/scroll-workspaces "'standard'"  # Default: 'standard', choices: 'off', 'invert'
+# Separators between groups - true or false
 dconf write /org/gnome/shell/extensions/TaskBar/separator-two true
 dconf write /org/gnome/shell/extensions/TaskBar/separator-three true
 dconf write /org/gnome/shell/extensions/TaskBar/separator-four true
 dconf write /org/gnome/shell/extensions/TaskBar/separator-five true
-#dconf write /org/gnome/shell/extensions/TaskBar/separator-six true
-#dconf write /org/gnome/shell/extensions/TaskBar/separator-three-bottom true
-#dconf write /org/gnome/shell/extensions/TaskBar/separator-five-bottom true
+# Space between each grouping on left and right sides
+dconf write /org/gnome/shell/extensions/TaskBar/separator-left-appview 5
+dconf write /org/gnome/shell/extensions/TaskBar/separator-right-appview 0
+dconf write /org/gnome/shell/extensions/TaskBar/separator-left-box-main 5
+dconf write /org/gnome/shell/extensions/TaskBar/separator-right-box-main 0
+dconf write /org/gnome/shell/extensions/TaskBar/separator-left-desktop 5
+dconf write /org/gnome/shell/extensions/TaskBar/separator-right-desktop 10
+dconf write /org/gnome/shell/extensions/TaskBar/separator-left-favorites 0
+dconf write /org/gnome/shell/extensions/TaskBar/separator-right-favorites 0
+dconf write /org/gnome/shell/extensions/TaskBar/separator-left-tasks 5
+dconf write /org/gnome/shell/extensions/TaskBar/separator-right-tasks 0
+dconf write /org/gnome/shell/extensions/TaskBar/separator-left-workspaces 20
+dconf write /org/gnome/shell/extensions/TaskBar/separator-right-workspaces 20
+
 dconf write /org/gnome/shell/extensions/TaskBar/appview-button-icon "'/usr/share/gnome-shell/extensions/TaskBar@zpydr/images/appview-button-default.svg'"
 dconf write /org/gnome/shell/extensions/TaskBar/desktop-button-icon "'/usr/share/gnome-shell/extensions/TaskBar@zpydr/images/desktop-button-default.png'"
 dconf write /org/gnome/shell/extensions/TaskBar/tray-button-icon "'/usr/share/gnome-shell/extensions/TaskBar@zpydr/images/bottom-panel-tray-button.svg'"
@@ -162,6 +174,14 @@ function enable_dropdown_terminal() {
   git clone https://github.com/zzrough/gs-extensions-drop-down-terminal /usr/share/gnome-shell/extensions/
 
 }
+
+
+#function enable_skype_ext() {
+  # Ext: https://extensions.gnome.org/extension/696/skype-integration/
+  # Git: https://github.com/chrisss404/gnome-shell-ext-SkypeNotification
+#}
+
+
 
 
 # ==============================[ GNOME Core Settings ]====================================== #

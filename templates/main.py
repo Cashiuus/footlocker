@@ -4,7 +4,7 @@
 # File:
 # Depends:
 # Compat:       2.7+
-# Created:      01/22/2016  -   Revised:
+# Created:      02/21/2016  -   Revised:
 # Author:       Cashiuus - Cashiuus@gmail.com
 #
 # Purpose:
@@ -34,25 +34,53 @@
 # ==============================================================================
 from __future__ import absolute_import
 from __future__ import print_function
-try:
-    # Always use input() regardless of Python version
-    input = raw_input
-except NameError:
-    pass
-# ============================[ IMPORT & CONSTANTS ]============================
 __version__ = 0.1
 __author__ = 'Cashiuus'
+## ====[ Python 2/3 Compatibilities ]==== ##
+try: input = raw_input
+except NameError: pass
+try: import thread
+except ImportError: import _thread as thread
+## =======[ IMPORT & CONSTANTS ]========= ##
 import os
 
-# ==========================[           ]==========================
+## ========[ TEXT COLORS ]=============== ##
+GREEN = '\033[32;1m'    # Green
+BLUE = '\033[01;34m'    # Heading
+YELLOW = '\033[01;33m'  # Warnings/Information
+RED = '\033[31m'        # Red/Error
+ORANGE = '\033[33m'     # Orange/Debug
+RESET = '\033[00m'      # Normal/White
+# ========================[ CORE UTILITY FUNCTIONS ]======================== #
+# Check - Root user
+# TODO: If not root, run with sudo
+def root_check():
+    if not (os.geteuid() == 0):
+        print("[-] Not currently root user. Please fix.")
+        exit(1)
+    return
 
+def make_dirs(path):
+    """
+    Helper function to make all directories necessary in the desired path
+    """
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return
 
-
+def shutdown_app():
+    print("Application shutting down -- Goodbye!")
+    exit(0)
+# ==========================[ BEGIN APPLICATION ]========================== #
 
 
 
 def main():
+    try:
+        # main application flow
 
+    except KeyboardInterrupt:
+        shutdown_app()
     return
 
 

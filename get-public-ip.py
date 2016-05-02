@@ -1,18 +1,17 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ==============================================================================
+# Created:      01-July-2014         -           Revised:   02-May-2016
+# File:         get-public-ip.py
+# Depends:      mechanize
+# Compat:       2.7+
+# Author:       Cashiuus - Cashiuus{at}gmail
 #
-# ===================================================================
-# File:             get-public-ip.py
-# Dependencies:     mechanize
-# Compatibility:    2.x
+# Purpose:      This will get public IP and store in log file with
+#               date providing a record of what my IP is each day.
 #
-# Creation Date:    7/1/2014
-# Author:           Cashiuus - Cashiuus@gmail.com
-#
-# Purpose:          This will get public IP and store in log file with
-#                   date providing a record of what my IP is each day.
-#                   
-# ===================================================================
-## Copyright (C) 2014 Cashiuus@gmail.com
+# ==============================================================================
+## Copyright (C) 2016 Cashiuus@gmail.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -33,16 +32,19 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-##
-# ===================================================================
+# ========================================================================
+from __future__ import absolute_import
 from __future__ import print_function
-import mechanize
+## =======[ IMPORTS & CONSTANTS ]========= ##
 import datetime
 #import os
 import os.path
 
+import mechanize
+
 LOG_FILE = 'public-ip.log'
 
+# ========================[ CORE UTILITY FUNCTIONS ]======================== #
 # Setup the browser object and necessary HTTP headers
 br = mechanize.Browser()
 br.add_headers = [('User-agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36')]
@@ -55,7 +57,7 @@ if not os.path.isfile(LOG_FILE):
 # The 'with' context manager closes the file for us when it's done
 with open(LOG_FILE, 'a') as f:
     f.write('\n')
-    # get IP and save it
+    # Get IP and save it
     try:
         response = br.open('http://api.ipify.org')
         response = response.read()

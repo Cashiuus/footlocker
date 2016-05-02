@@ -7,5 +7,7 @@
 *.ovpn
 *.cap
 *.local
+*.pyc
 mybuilds.conf
+settings.conf
 motd

@@ -61,7 +61,7 @@ with open(LOG_FILE, 'a') as f:
     try:
         response = br.open('http://api.ipify.org')
         response = response.read()
-        print("Public IP: {}".format(response))
+        print("Public IP: {}\n".format(response))
         output = str(datetime.date.today()) + '\t' + response
         # Write my IP to file
         f.write(output)

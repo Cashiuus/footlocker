@@ -1,0 +1,14 @@
+Django
+django-debug-toolbar
+django-environ
+django-secure
+Jinja2
+lxml
+Pillow
+requests
+six
+tablib
+virtualenv
+virtualenvwrapper
+xlrd
+xlwt

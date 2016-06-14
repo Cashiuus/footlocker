@@ -9,4 +9,5 @@
 *.local
 *.pyc
 settings.conf
+settings.sh
 motd

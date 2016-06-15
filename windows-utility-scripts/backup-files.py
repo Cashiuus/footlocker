@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Created:      01-July-2014          -           Revised Date:     03-May-2016
+# Created:      01-July-2014          -           Revised Date:    03-June-2016
 # File:         backup-files.py
 # Depends:      colorama
 # Compat:       2.7+
@@ -45,8 +45,10 @@ import sys
 import time
 import zipfile
 
+# TODO: Make this have a fallback in case colorama is not installed.
+from colorama import init, Fore
 
-__version__ = 1.4
+__version__ = 1.5
 __author__ = 'Cashiuus'
 VERBOSE = 0
 # ========================[ CORE UTILITY FUNCTIONS ]======================== #
@@ -102,7 +104,6 @@ def banner():
     # TODO: Adjust this to size according to terminal width
     line = '=' * 80
     try:
-        from colorama import init, Fore
         init()
         border = Fore.GREEN + "===============================================================================================" + Fore.RESET
         # ASCII Art Generator: http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
@@ -140,13 +141,13 @@ class ProgressBar(object):
         totalBlocks = self.width
         filledBlocks = int(round(progress / (100 / float(totalBlocks)) ))
         emptyBlocks = totalBlocks - filledBlocks
-        
-        progressBar = Fore.CYAN + self.progressSymbol * filledBlocks + self.emptySymbol * emptyBlocks
-        
+
+        progressbar = Fore.CYAN + self.progressSymbol * filledBlocks + self.emptySymbol * emptyBlocks
+
         if not self.message:
             self.message = u''
         
-        progressMessage = u'\r{0} {1} {2}{3}%'.format(self.message, progressBar, Fore.RESET, progress)
+        progressMessage = u'\r{0} {1} {2}{3}%'.format(self.message, progressbar, Fore.RESET, progress)
         
         sys.stdout.write(progressMessage)
         sys.stdout.flush()

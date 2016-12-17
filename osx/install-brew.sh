@@ -1,12 +1,46 @@
 #!/usr/bin/env bash
+# ==============================================================================
+# File:     install-homebrew.sh
 #
-# Cashiuus - 09-JUN-2016
+# Author:   Cashiuus
+# Created:  09-JUN-2016     -     Revised: 16-DEC-2016
 #
-# Credit to: https://raw.githubusercontent.com/mathiasbynens/dotfiles/master/brew.sh
-# Credit: https://miteshshah.github.io/mac/things-to-do-after-installing-mac-os-x/#install-homebrew
+#-[ Usage ]---------------------------------------------------------------------
+#       Install command-line tools using Homebrew.
 #
-# Install command-line tools using Homebrew.
-
+#   1. Modify constants in script below
+#   2. Run script and enjoy
+#
+#-[ Notes/Links ]---------------------------------------------------------------
+#   - Credit to: https://raw.githubusercontent.com/mathiasbynens/dotfiles/master/brew.sh
+#   - Credit: https://miteshshah.github.io/mac/things-to-do-after-installing-mac-os-x/#install-homebrew
+#
+#-[ References ]----------------------------------------------------------------
+#   - Another option-Vagrant VMs: http://joebergantine.com/projects/django/django-newproj/
+#   - Tut: https://hackercodex.com/guide/mac-osx-mavericks-10.9-configuration/
+#
+#-[ Copyright ]-----------------------------------------------------------------
+#   MIT License ~ http://opensource.org/licenses/MIT
+# ==============================================================================
+__version__="0.1"
+__author__="Cashiuus"
+## ========[ TEXT COLORS ]=============== ##
+# [https://wiki.archlinux.org/index.php/Color_Bash_Prompt]
+# [https://en.wikipedia.org/wiki/ANSI_escape_code]
+GREEN="\033[01;32m"    # Success
+YELLOW="\033[01;33m"   # Warnings/Information
+RED="\033[01;31m"      # Issues/Errors
+BLUE="\033[01;34m"     # Heading
+PURPLE="\033[01;35m"   # Other
+ORANGE="\033[38;5;208m" # Debugging
+BOLD="\033[01;01m"     # Highlight
+RESET="\033[00m"       # Normal
+## =========[ CONSTANTS ]================ ##
+START_TIME=$(date +%s)
+APP_PATH=$(readlink -f $0)
+APP_BASE=$(dirname "${APP_PATH}")
+APP_NAME=$(basename "${APP_PATH}")
+DEBUG=false
 
 echo "XCode already installed? If not, cancel script and install XCode via AppStore first (10-minute install)..."
 read -n 7
@@ -15,14 +49,14 @@ sudo xcodebuild -license
 
 which brew
 if [[ ?$ -eq 1 ]]; then
-	echo "[*] Homebrew not yet installed. Installing now..."
-	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    echo "[*] Homebrew not yet installed. Installing now..."
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 brew doctor
 
 # Add brew to PATH
 grep -q '^PATH=/usr/local/bin:/usr/local/sbin:$PATH' ~/.bash_profile 2>/dev/null \
-	|| echo PATH=/usr/local/bin:/usr/local/sbin:$PATH >> ~/.bash_profile
+    || echo PATH=/usr/local/bin:/usr/local/sbin:$PATH >> ~/.bash_profile
 source ~/.bash_profile
 
 # Make sure we’re using the latest Homebrew.
@@ -130,7 +164,7 @@ sudo chown root:wheel /usr/local/Cellar/mtr/0.86/sbin/mtr
 sudo chmod u+s /usr/local/Cellar/mtr/0.86/sbin/mtr
 # Add this to ~/.bash_aliases
 grep -q 'alias mtr=/usr/local/sbin/mtr' ~/.bash_aliases 2>/dev/null \
-	|| echo 'alias mtr=/usr/local/sbin/mtr' >> ~/.bash_aliases
+    || echo 'alias mtr=/usr/local/sbin/mtr' >> ~/.bash_aliases
 brew install netpbm
 brew install nikto
 brew install nmap

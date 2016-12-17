@@ -48,7 +48,7 @@ xcode-select --install
 sudo xcodebuild -license
 
 which brew
-if [[ ?$ -eq 1 ]]; then
+if [[ $? -eq 1 ]]; then
     echo "[*] Homebrew not yet installed. Installing now..."
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
@@ -160,8 +160,11 @@ brew install john
 brew install knock
 # [Cashiuus] mtr is a traceroute tool
 brew install mtr
-sudo chown root:wheel /usr/local/Cellar/mtr/0.86/sbin/mtr
-sudo chmod u+s /usr/local/Cellar/mtr/0.86/sbin/mtr
+# TODO: Can get mtr version after install via: sudo mtr --version (response: mtr 0.87)
+#   store response version for next lines
+#MTR_VERSION=$(sudo mtr --version)
+sudo chown root:wheel /usr/local/Cellar/mtr/0.87/sbin/mtr
+sudo chmod u+s /usr/local/Cellar/mtr/0.87/sbin/mtr
 # Add this to ~/.bash_aliases
 grep -q 'alias mtr=/usr/local/sbin/mtr' ~/.bash_aliases 2>/dev/null \
     || echo 'alias mtr=/usr/local/sbin/mtr' >> ~/.bash_aliases
@@ -223,7 +226,8 @@ brew install sqlitebrowser
 brew install speedtest_cli
 brew install ssh-copy-id
 brew install sslscan
-brew install testssl
+# Removing testssl as it no longer works correctly, ues sslscan instead
+#brew install testssl
 brew install tree
 brew install vbindiff
 brew install webkit2png
@@ -234,18 +238,17 @@ brew install zopfli
 deactivate
 
 brew install postgresql
-# Clean up old installs: brew cleanup postgresql
-# Autostart: brew services start postgresql
-# Manual Start: postgres -D /usr/local/var/postgres
+echo ""
+echo "  === POSTGRESQL Cmds ==="
+echo "\t- Clean up old installs: brew cleanup postgresql"
+echo "\t- Autostart: brew services start postgresql"
+echo "\t- Manual Start: postgres -D /usr/local/var/postgres"
+echo ""
 
-# Start postgresql
-#postgres -D /usr/local/var/postgres
-# If you want it to autostart, enter this:
-# ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
-# launchctl
-
+# -=[ Python/Django Dependencies ]=-
 brew install python
 pip install --upgrade pip setuptools
+
 brew install graphviz
 pip install psycopg2
 
